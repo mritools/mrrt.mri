@@ -1,0 +1,4 @@
+numpy>=1.14.5
+mrrt.operators
+mrrt.nufft
+mrrt.utils

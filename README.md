@@ -22,6 +22,7 @@ TODO
 
 - [NumPy]  (>=1.14)
 - [mrrt.nufft]
+- [mrrt.operators]
 - [mrrt.utils]
 
 **Recommended:**

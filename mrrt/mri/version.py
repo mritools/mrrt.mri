@@ -76,7 +76,14 @@ MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
 PACKAGE_DATA = {
-    "mrrt.mri": [pjoin("tests", "*"), pjoin("tests", "data", "*")]
+    "mrrt.mri": [
+        pjoin("tests", "*"),
+        pjoin("data", "*"),
+        pjoin("coils", "tests", "*"),
+        pjoin("field_maps", "tests", "*"),
+        pjoin("operators", "tests", "*"),
+        pjoin("sim", "tests", "*"),
+    ]
 }
 REQUIRES = ["numpy", "mrrt.utils", "mrrt.nufft", "mrrt.operators"]
 PYTHON_REQUIRES = ">= 3.6"
