@@ -1,0 +1,21 @@
+
+mrrt.mri builds upon some compatibly licensed 3rd party code:
+
+1.) Code for coil map estimation and k-space data prewhitening was adapted from
+the ISMRMRD Python Toolbox.
+
+    Name: ISMRMRD Python Toolbox
+    URL: https://github.com/ismrmrd/ismrmrd-python-tools
+    Files:  mrrt/mri/coils/*.py
+    License: permissive (see license/ISMRMRD_Python_license.txt)
+
+
+2.) Code related to MRI phantoms and field map approximation is based on similar
+    functions from the Michigan Image Reconstruction Toolbox created by Jeff
+    Fessler and his students.
+
+    Name: Michigan Image Reconstruction Toolbox
+    URL: http://web.eecs.umich.edu/~fessler/code/
+    Files: mrrt/mri/field_map/*.py
+           mrrt/mri/sim/*.py
+    License: see license/Michigan_Image_Reconstruction_Toolbox_license.txt
