@@ -10,6 +10,7 @@ from mrrt.utils import config
 all_xp = [np]
 if config.have_cupy:
     import cupy
+
     all_xp += [cupy]
 
 __all__ = ["test_mri_exp_mult"]

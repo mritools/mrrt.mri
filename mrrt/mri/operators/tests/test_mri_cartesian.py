@@ -62,7 +62,7 @@ def test_FFT(xp, shift, nd_in, nd_out, order, real_dtype):
         nd_output=nd_out,
         gpu_force_reinit=False,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )
 
     """
@@ -127,7 +127,7 @@ def test_FFT_roundtrips(xp, shift, nd_in, nd_out, order):
         nd_output=nd_out,
         gpu_force_reinit=False,
         mask_kspace_on_gpu=False,
-        **get_loc(xp)
+        **get_loc(xp),
     )
 
     """
@@ -185,7 +185,7 @@ def test_FFT_axes_subsets_and_ortho(
         ortho=ortho,
         gpu_force_reinit=False,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )
 
     """
@@ -230,7 +230,7 @@ def test_FFT_axes_subsets_and_ortho(
             xp.fft.ifftn(
                 xp.fft.ifftshift(numpy_tmp, axes=fft_axes),
                 axes=fft_axes,
-                **fftargs
+                **fftargs,
             ),
             axes=fft_axes,
         )
@@ -254,7 +254,7 @@ def test_FFT_2reps(xp, shift, nd_in, nd_out, order):
         nd_output=nd_out,
         gpu_force_reinit=False,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )
 
     """
@@ -336,7 +336,7 @@ def test_FFT_coilmap(xp, shift, nd_in, nd_out, loop, preplan_pyfftw, order):
         gpu_force_reinit=False,
         disable_warnings=True,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )
     """
     test forward transform with 4 coils
@@ -405,7 +405,7 @@ def test_FFT_coilmap_2reps(
         gpu_force_reinit=False,
         disable_warnings=True,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )
     """
     test forward transform with 4 coils and 2 repetitions
@@ -459,7 +459,7 @@ def test_FFT_composite(xp, shift, nd_in, nd_out, order):
         nd_output=nd_out,
         gpu_force_reinit=False,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )
 
     # create new linear operator for forward followed by inverse transform
@@ -499,7 +499,7 @@ def test_partial_FFT_allsamples(xp, shift, nd_in, order):
         sample_mask=sample_mask,
         gpu_force_reinit=False,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )  # no missing samples
 
     # create new linear operator for forward followed by inverse transform
@@ -540,7 +540,7 @@ def test_partial_FFT(xp, shift, nd_in, order):
         sample_mask=sample_mask,
         gpu_force_reinit=False,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )
 
     # create new linear operator for forward followed by inverse transform
@@ -596,7 +596,7 @@ def test_partial_FFT_with_im_mask(xp, shift, nd_in, order):
         sample_mask=sample_mask,
         gpu_force_reinit=False,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )
 
     # test forward only
@@ -691,7 +691,7 @@ def test_partial_FFT_coils(xp, shift, nd_in, order):
         gpu_force_reinit=False,
         disable_warnings=True,
         mask_kspace_on_gpu=(not shift),
-        **get_loc(xp)
+        **get_loc(xp),
     )
 
     # create new linear operator for forward followed by inverse transform
@@ -730,7 +730,7 @@ def test_partial_FFT_coils(xp, shift, nd_in, order):
             gpu_force_reinit=False,
             disable_warnings=True,
             mask_kspace_on_gpu=(not shift),
-            **get_loc(xp)
+            **get_loc(xp),
         )
         y_multi = FTop_multi * c_multi
 

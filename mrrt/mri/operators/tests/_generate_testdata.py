@@ -16,10 +16,8 @@ from mrrt.mri.sim import (
 )
 from mrrt.mri.operators import MRI_Operator
 
-data_dir = pjoin(
-    os.path.dirname(mrrt.mri.__file__), "data"
-)
-test_data = np.load(pjoin(data_dir, 'multiecho_radial_traj.npz'))
+data_dir = pjoin(os.path.dirname(mrrt.mri.__file__), "data")
+test_data = np.load(pjoin(data_dir, "multiecho_radial_traj.npz"))
 
 
 def generate_radial_kspace_from_angles(
@@ -142,7 +140,10 @@ def generate_ideal_object(
             # the spectral offsets for each location in the first
             # (i.e. there are no partial-volume voxels at the moment)
             mri_obj = mri_object_2d_multispectral(
-                ig.fov, spectral_offsets=spectral_offsets, units="mm", dtype=obj_dtype,
+                ig.fov,
+                spectral_offsets=spectral_offsets,
+                units="mm",
+                dtype=obj_dtype,
             )
     elif ndim == 1:
         if spectral_offsets is not None:
@@ -166,7 +167,9 @@ def generate_ideal_kspace(ndim, mri_obj, kspace, precision="single", t=None):
     elif ndim == 2:
         data_true = mri_obj.kspace(kspace[:, 0], kspace[:, 1], t=t)
     else:
-        data_true = mri_obj.kspace(kspace[:, 0], kspace[:, 1], kspace[:, 2], t=t)
+        data_true = mri_obj.kspace(
+            kspace[:, 0], kspace[:, 1], kspace[:, 2], t=t
+        )
     # samples of continuous-space
     if precision == "double":
         data_true = np.asarray(data_true, dtype=np.complex128)
@@ -213,7 +216,7 @@ def generate_MRI_object(
 
     ndim = kspace.shape[-1]
     if np.isscalar(N):
-        N = (N, ) * ndim
+        N = (N,) * ndim
 
     # setup NUFFT arguments.  will modify table_based or not below
     nufft_kwargs["Jd"] = J
@@ -311,7 +314,7 @@ def generate_MRI_object(
         # loc_out=loc_out,
         **spectral_args,
         **fieldmap_kwargs,
-        **extra_args
+        **extra_args,
     )
     # TODO: can zmap be specified at creation time rather than later via new_zmap?
     # ti=ti, zmap=zmap, L=6, table_based=True)
@@ -325,7 +328,10 @@ def generate_MRI_object(
             nti = allti.shape[0] // n_shots
             tstart = time.time()
             Gn.new_zmap(
-                ti=allti[:nti], zmap=zmap, L=fieldmap_segments, Nidentical_reps=n_shots,
+                ti=allti[:nti],
+                zmap=zmap,
+                L=fieldmap_segments,
+                Nidentical_reps=n_shots,
             )
             tgen_fmap = time.time() - tstart
         else:
@@ -376,7 +382,8 @@ def generate_sim_data(
             res = N0
         else:
             raise ValueError(
-                "Invalid Resolution.  Must be an integer or " "length ndim array"
+                "Invalid Resolution.  Must be an integer or "
+                "length ndim array"
             )
 
     J0 = np.atleast_1d(J0)
@@ -385,7 +392,9 @@ def generate_sim_data(
     elif len(J0) == ndim:
         J = J0
     else:
-        raise ValueError("Invalid J0.  Must be an integer or length ndim " "array")
+        raise ValueError(
+            "Invalid J0.  Must be an integer or length ndim " "array"
+        )
 
     if precision == "double":
         real_dtype = np.float64
@@ -414,7 +423,9 @@ def generate_sim_data(
     x_true = mri_obj.image(*ig.grid())
 
     # MUST BE COMPLEX FOR MRI_Operator COMPATIBILITY
-    x_true = np.asarray(x_true, dtype=np.promote_types(real_dtype, np.complex64))
+    x_true = np.asarray(
+        x_true, dtype=np.promote_types(real_dtype, np.complex64)
+    )
 
     N = np.asarray(ig.shape)
     if ndim == 1:
@@ -438,7 +449,9 @@ def generate_sim_data(
             kspace = kspace / kmax * ig.shape[0] / np.asarray(ig.fov) / 2
         elif ndim == 2:
             os_factor = 2
-            kr = np.arange(-max(N) / 2, max(N) / 2, 1 / os_factor)  # +(.5/os_factor)
+            kr = np.arange(
+                -max(N) / 2, max(N) / 2, 1 / os_factor
+            )  # +(.5/os_factor)
             kr /= np.abs(kr).max()
             kr *= np.max(N / np.asarray(ig.fov)) / 2
             nr = len(kr)
@@ -454,12 +467,17 @@ def generate_sim_data(
                 kx[:, shot] = np.cos(ang[shot]) * kr
                 ky[:, shot] = -np.sin(ang[shot]) * kr
             kspace = np.concatenate(
-                (kx.reshape((-1, 1), order="F"), ky.reshape((-1, 1), order="F"),),
+                (
+                    kx.reshape((-1, 1), order="F"),
+                    ky.reshape((-1, 1), order="F"),
+                ),
                 axis=1,
             )
         elif ndim == 1:
             os_factor = 2
-            kr = np.arange(-max(N) / 2, max(N) / 2, 1 / os_factor)  # +(.5/os_factor)
+            kr = np.arange(
+                -max(N) / 2, max(N) / 2, 1 / os_factor
+            )  # +(.5/os_factor)
             kr /= np.abs(kr).max()
             kr *= np.max(N / np.asarray(ig.fovs())) / 2
             nr = len(kr)
@@ -514,16 +532,21 @@ def generate_sim_data(
 
             # for simplicity, set sensitivities to constant along z
             if False:
-                smap3d = np.zeros((ig.mask.sum(), n_coils), dtype=data_complex_dtype)
+                smap3d = np.zeros(
+                    (ig.mask.sum(), n_coils), dtype=data_complex_dtype
+                )
                 for coilIDX in range(n_coils):
                     smap3d[:, coilIDX] = np.tile(
-                        smap2d[:, :, coilIDX][:, :, np.newaxis], [1, 1, ig.shape[2]],
+                        smap2d[:, :, coilIDX][:, :, np.newaxis],
+                        [1, 1, ig.shape[2]],
                     )[ig.mask]
 
             else:
                 if ndim == 3:
                     smap3d = np.zeros(
-                        (list(N) + [n_coils]), dtype=data_complex_dtype, order="F",
+                        (list(N) + [n_coils]),
+                        dtype=data_complex_dtype,
+                        order="F",
                     )
                     for coilIDX in range(n_coils):
                         smap3d[:, :, :, coilIDX] = np.tile(
@@ -568,7 +591,9 @@ def generate_sim_data(
             fovs=ig.fov,
             smap3d=smap3d,
             n_shots=n_shots,
-            mask=np.squeeze(ig.mask),  # TODO: remove need to squeeze ig.mask in 1D case
+            mask=np.squeeze(
+                ig.mask
+            ),  # TODO: remove need to squeeze ig.mask in 1D case
             recon_case=recon_case,
             J=J,
             grid_os_factor=grid_os_factor,

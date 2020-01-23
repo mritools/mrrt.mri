@@ -14,7 +14,9 @@ try:
     # MRI Operator (includes multi-coil and fieldmap processing)
     from ._MRI import MRI_Operator  # noqa
 except (ImportError, NameError):
-    print("NUFFT_Operator & MRI_OPerator not available (requires mrrt.nufft "
-          "and mrrt.operators packages)")
+    print(
+        "NUFFT_Operator & MRI_OPerator not available (requires mrrt.nufft "
+        "and mrrt.operators packages)"
+    )
 
 test = Tester().test

@@ -144,7 +144,7 @@ class MRI_Operator(LinearOperatorMulti):
 
     __weights = None
     __unitary_scaling = False
-    __pixel_basis = 'dirac'
+    __pixel_basis = "dirac"
 
     @profile
     def __init__(
@@ -245,9 +245,10 @@ class MRI_Operator(LinearOperatorMulti):
         self.ndim = len(shape)
         self.Nd = shape  # TODO: remove?
 
-        if 'nufft_args' in kwargs:
+        if "nufft_args" in kwargs:
             raise ValueError(
-                "use of nufft_args is outdated. use nufft_kwargs instead.")
+                "use of nufft_args is outdated. use nufft_kwargs instead."
+            )
 
         if mask is None:
             self.mask = None
@@ -298,7 +299,8 @@ class MRI_Operator(LinearOperatorMulti):
         self.omega = self._kspace_to_omega(kspace)  # set after Nd, fov
         if xp.max(xp.abs(self.omega)) > xp.pi + 1e-6:
             warnings.warn(
-                "Warning in MRI_Operator: omega exceeds pi. Was " "this intended?"
+                "Warning in MRI_Operator: omega exceeds pi. Was "
+                "this intended?"
             )
 
         if self.exact:
@@ -358,8 +360,10 @@ class MRI_Operator(LinearOperatorMulti):
             # instance a 3-level periodization wavelet transform can be
             # performed in a non-redundant fashion.
             os_grid_shape = tuple(
-                [next_fast_len_multiple(ceil(grid_os_factor * s), 8)
-                 for s in shape]
+                [
+                    next_fast_len_multiple(ceil(grid_os_factor * s), 8)
+                    for s in shape
+                ]
             )
 
             # Default NUFFT parameters
@@ -394,7 +398,8 @@ class MRI_Operator(LinearOperatorMulti):
                 "squeeze_reps"
             ]:
                 raise ValueError(
-                    "squeeze_reps = True not allowed within nufft_kwargs")
+                    "squeeze_reps = True not allowed within nufft_kwargs"
+                )
 
             self.Gnufft = NUFFT_Operator(
                 mask=mask,
@@ -416,7 +421,9 @@ class MRI_Operator(LinearOperatorMulti):
 
         # configure DCF and/or basis weights
         # (must come after self._init_basis())
-        self._init_density_compensation(weights, nargout, apply_basis_transform=True)
+        self._init_density_compensation(
+            weights, nargout, apply_basis_transform=True
+        )
 
         # configure fieldmap corrected recon
         # This sets self.ti and self.zmap
@@ -435,7 +442,9 @@ class MRI_Operator(LinearOperatorMulti):
         """
         if self.exact:
             if self.spectral_offsets is not None:
-                raise ValueError("no multispectral implementation for the exact case")
+                raise ValueError(
+                    "no multispectral implementation for the exact case"
+                )
             else:
                 matvec = self._forw_exact
                 matvec_adj = self._back_exact
@@ -482,7 +491,10 @@ class MRI_Operator(LinearOperatorMulti):
     def _init_basis(self):
         """Called by __init__ to initialize the PixelBasis."""
         self.basis = PixelBasis(
-            self.kspace, pixel_basis=self.__pixel_basis, fov=self.fov, Nd=self.Nd
+            self.kspace,
+            pixel_basis=self.__pixel_basis,
+            fov=self.fov,
+            Nd=self.Nd,
         )
 
     @property
@@ -598,7 +610,9 @@ class MRI_Operator(LinearOperatorMulti):
                 if weights.size == self.basis.transform.size:
                     weights *= self.basis.transform
                 elif weights.size == self.basis.transform.size * self.Ncoils:
-                    weights *= self.xp.concatenate([self.basis.transform] * self.Ncoils)
+                    weights *= self.xp.concatenate(
+                        [self.basis.transform] * self.Ncoils
+                    )
                 else:
                     raise ValueError("invalid size for weights")
 
@@ -616,13 +630,19 @@ class MRI_Operator(LinearOperatorMulti):
             if isinstance(weights, xp.ndarray):
                 if weights.dtype != self._real_dtype:
                     weights = weights.astype(self._real_dtype)
-                weights = DiagonalOperator(weights, loc_in=loc_in, loc_out=loc_out)
+                weights = DiagonalOperator(
+                    weights, loc_in=loc_in, loc_out=loc_out
+                )
             elif not isinstance(weights, DiagonalOperator):
-                raise ValueError("weights must be an ndarray or DiagonalOperator")
+                raise ValueError(
+                    "weights must be an ndarray or DiagonalOperator"
+                )
             if weights.dtype != self._real_dtype:
                 # retrieve the diagonal and convert to the desired dtype
                 weights = weights.diag.diagonal().astype(self._real_dtype)
-                weights = DiagonalOperator(weights, loc_in=loc_in, loc_out=loc_out)
+                weights = DiagonalOperator(
+                    weights, loc_in=loc_in, loc_out=loc_out
+                )
             if weights.nargin != nargout:
                 if weights.nargin * self.Ncoils == nargout:
                     weights = BlockDiagLinOp(
@@ -639,7 +659,9 @@ class MRI_Operator(LinearOperatorMulti):
         if self.spectral_offsets is None:
             return
         if self.ti is None:
-            raise ValueError("Using spectral_offsets requires ti to be specified")
+            raise ValueError(
+                "Using spectral_offsets requires ti to be specified"
+            )
         self.offset_arrays = []
         for f in self.spectral_offsets:
             if f == 0:
@@ -705,9 +727,13 @@ class MRI_Operator(LinearOperatorMulti):
             if hasattr(self, "fmap_basis") and self.fmap_basis is not None:
                 self.fmap_basis = self._update_dtype(self.fmap_basis, "complex")
             if hasattr(self, "fmap_coeffs") and self.fmap_coeffs is not None:
-                self.fmap_coeffs = self._update_dtype(self.fmap_coeffs, "complex")
+                self.fmap_coeffs = self._update_dtype(
+                    self.fmap_coeffs, "complex"
+                )
         if self.basis.transform is not None:
-            self.basis.transform = self._update_dtype(self.basis.transform, "real")
+            self.basis.transform = self._update_dtype(
+                self.basis.transform, "real"
+            )
 
     def _kspace_to_omega(self, kspace):
         xp = self.xp
@@ -715,7 +741,9 @@ class MRI_Operator(LinearOperatorMulti):
         # configure frequencies in physical units
         omega = xp.empty_like(kspace)
         for id in range(ndim):
-            omega[:, id] = 2 * xp.pi * kspace[:, id] * self.fov[id] / self.Nd[id]
+            omega[:, id] = (
+                2 * xp.pi * kspace[:, id] * self.fov[id] / self.Nd[id]
+            )
         if omega.dtype != self._real_dtype:
             omega = omega.astype(self._real_dtype)
         return omega
@@ -1099,13 +1127,16 @@ class MRI_Operator(LinearOperatorMulti):
                         self.coil_sensitivities is not None
                     ):  # and xp.any(self.coil_sensitivities):
                         y = xp.empty(
-                            (self.shape[0], nreps), dtype=x.dtype, order=self.order
+                            (self.shape[0], nreps),
+                            dtype=x.dtype,
+                            order=self.order,
                         )
                         for cc in range(self.Ncoils):
                             # TODO: using broadcasting across nreps now instead
                             # of explicit tile of the sensitivities
                             y[cc * nt : (cc + 1) * nt, :] = self.Gnufft * (
-                                self.coil_sensitivities[:, cc][:, xp.newaxis] * x
+                                self.coil_sensitivities[:, cc][:, xp.newaxis]
+                                * x
                             )
                     else:
                         y = self.Gnufft * x
@@ -1127,7 +1158,10 @@ class MRI_Operator(LinearOperatorMulti):
                             repIDX * self.Ncoils, (repIDX + 1) * self.Ncoils
                         )
                         if self.coil_sensitivities is not None:
-                            tmp = self.coil_sensitivities * x[:, repIDX : repIDX + 1]
+                            tmp = (
+                                self.coil_sensitivities
+                                * x[:, repIDX : repIDX + 1]
+                            )
                             y[:, rep_slice] = self.Gnufft * tmp
                         else:
                             xsl = x[:, repIDX]
@@ -1155,13 +1189,17 @@ class MRI_Operator(LinearOperatorMulti):
                     if loop_over_coils:
                         # multiple coils and fieldmap
                         y = xp.empty(
-                            (self.shape[0], nreps), dtype=x.dtype, order=self.order
+                            (self.shape[0], nreps),
+                            dtype=x.dtype,
+                            order=self.order,
                         )
                         for ll in range(self.L):
                             cx = self.fmap_coeffs[:, ll : ll + 1] * x
                             for cc in range(self.Ncoils):
                                 # fmap_coeffs will be broadcast when x.shape[1]>1
-                                tmp = self.coil_sensitivities[:, cc : cc + 1] * cx
+                                tmp = (
+                                    self.coil_sensitivities[:, cc : cc + 1] * cx
+                                )
                                 tmp = self.Gnufft * tmp
                                 # fmap_basis will be broadcast when x.shape[1]>1
                                 tmp = self.fmap_basis[:, ll : ll + 1] * tmp
@@ -1182,10 +1220,12 @@ class MRI_Operator(LinearOperatorMulti):
                             cx = self.fmap_coeffs[:, ll : ll + 1] * x
                             for repIDX in range(nreps):
                                 rep_slice = slice(
-                                    repIDX * self.Ncoils, (repIDX + 1) * self.Ncoils
+                                    repIDX * self.Ncoils,
+                                    (repIDX + 1) * self.Ncoils,
                                 )
                                 tmp = (
-                                    self.coil_sensitivities * cx[:, repIDX : repIDX + 1]
+                                    self.coil_sensitivities
+                                    * cx[:, repIDX : repIDX + 1]
                                 )
                                 y[:, rep_slice] = self.Gnufft * tmp
                         y = y.reshape((self.shape[0], nreps), order=self.order)
@@ -1428,7 +1468,9 @@ class MRI_Operator(LinearOperatorMulti):
                 if x.ndim > 2:
                     raise ValueError("unexpected ndim for x")
                 # apply rolloff correction
-                x *= xp.conj(self._apply_mask(sn_tmp, squeeze_output=x.ndim == 1))
+                x *= xp.conj(
+                    self._apply_mask(sn_tmp, squeeze_output=x.ndim == 1)
+                )
         finally:
             if sn_outside_loop:
                 # store rolloff factors back in Gnufft object
@@ -1449,7 +1491,9 @@ class MRI_Operator(LinearOperatorMulti):
             dtype=y.dtype,
             order=self.order,
         )
-        for n, (f, v) in enumerate(zip(self.spectral_offsets, self.offset_arrays)):
+        for n, (f, v) in enumerate(
+            zip(self.spectral_offsets, self.offset_arrays)
+        ):
             if v is not None:
                 use_linops = False
                 if use_linops:
@@ -1470,7 +1514,9 @@ class MRI_Operator(LinearOperatorMulti):
                     tmp = Omega_shift.H * y
                 else:
                     y_shape = y.shape
-                    y = y.reshape((self.shape[0] // self.Ncoils, -1), order=self.order)
+                    y = y.reshape(
+                        (self.shape[0] // self.Ncoils, -1), order=self.order
+                    )
                     if isinstance(v, tuple):
                         # weighted sum of frequencies
                         #     (e.g. multispectral fat model)
@@ -1515,7 +1561,9 @@ class MRI_Operator(LinearOperatorMulti):
 
         # TODO: update for basis.transform built into self.weights
         if self.basis.transform is not None:
-            basis_sq = xp.real(xp.conj(self.basis.transform) * self.basis.transform)
+            basis_sq = xp.real(
+                xp.conj(self.basis.transform) * self.basis.transform
+            )
             if W_op is not None:
                 # fold the basis transform into the DCF weights
                 W_op.diag.setdiag(W_op.diag.diagonal() * basis_sq)

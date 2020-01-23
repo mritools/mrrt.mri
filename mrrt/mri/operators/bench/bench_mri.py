@@ -311,7 +311,10 @@ def _old_bar_graph(bench_tuple):
         x = np.arange(len(y))
         width = 0.8
         plt.bar(
-            x, y, tick_label=[s.replace(",", "\n") for s in sorted_keys], width=width,
+            x,
+            y,
+            tick_label=[s.replace(",", "\n") for s in sorted_keys],
+            width=width,
         )
         plt.xticks(plt.xticks()[0] + width / 2)
         plt.title(field, fontdict=dict(fontsize=24))
@@ -368,7 +371,9 @@ def bench_mri_2d_nocoils_nofieldmap(
 
     if save_dir is not None:
         fname_base = "bench_2d_001coil_001fmapseg"
-        _save_bench(save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes)
+        _save_bench(
+            save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes
+        )
 
 
 def bench_mri_2d_16coils_nofieldmap(
@@ -419,7 +424,9 @@ def bench_mri_2d_16coils_nofieldmap(
 
     if save_dir is not None:
         fname_base = "bench_2d_016coil_001fmapseg"
-        _save_bench(save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes)
+        _save_bench(
+            save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes
+        )
 
 
 def bench_mri_2d_16coils_fieldmap(
@@ -470,7 +477,9 @@ def bench_mri_2d_16coils_fieldmap(
 
     if save_dir is not None:
         fname_base = "bench_2d_016coil_006fmapseg"
-        _save_bench(save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes)
+        _save_bench(
+            save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes
+        )
 
 
 def bench_mri_2d_16coils_fieldmap_multispectral(
@@ -525,7 +534,9 @@ def bench_mri_2d_16coils_fieldmap_multispectral(
 
     if save_dir is not None:
         fname_base = "bench_2d_016coil_006fmapseg_%dspectra" % nspectra
-        _save_bench(save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes)
+        _save_bench(
+            save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes
+        )
 
 
 def bench_mri_3d_nocoils_nofieldmap(
@@ -576,7 +587,9 @@ def bench_mri_3d_nocoils_nofieldmap(
 
     if save_dir is not None:
         fname_base = "bench_3d_001coil_001fmapseg"
-        _save_bench(save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes)
+        _save_bench(
+            save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes
+        )
 
 
 def bench_mri_3d_nocoils_fieldmap(
@@ -627,7 +640,9 @@ def bench_mri_3d_nocoils_fieldmap(
 
     if save_dir is not None:
         fname_base = "bench_3d_001coil_006fmapseg"
-        _save_bench(save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes)
+        _save_bench(
+            save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes
+        )
 
 
 def bench_mri_3d_16coils_nofieldmap(
@@ -678,7 +693,9 @@ def bench_mri_3d_16coils_nofieldmap(
 
     if save_dir is not None:
         fname_base = "bench_3d_016coil_001fmapseg"
-        _save_bench(save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes)
+        _save_bench(
+            save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes
+        )
 
 
 def bench_mri_3d_16coils_fieldmap(
@@ -729,7 +746,9 @@ def bench_mri_3d_16coils_fieldmap(
 
     if save_dir is not None:
         fname_base = "bench_3d_016coil_006fmapseg"
-        _save_bench(save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes)
+        _save_bench(
+            save_dir, fname_base, [t_create, t_forward, t_adj, t_norm], axes
+        )
 
 
 # plot_timings=True; include_GPU=True; include_CPU=True; print_timings=True; phasings=['real', 'complex']; save_dir='/tmp'

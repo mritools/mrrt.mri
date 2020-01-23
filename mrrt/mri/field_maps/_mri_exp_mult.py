@@ -32,9 +32,7 @@ def mri_exp_mult(A, u, v, xp=None, debug=False):
 
     if n != u.size:
         raise ValueError(
-            "Inconsistent Dimensions: n={}, u.shape[1]={}".format(
-                n, u.shape[1]
-            )
+            "Inconsistent Dimensions: n={}, u.shape[1]={}".format(n, u.shape[1])
         )
 
     if debug:

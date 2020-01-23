@@ -216,9 +216,7 @@ def mri_exp_approx(
                 plt.figure(),
                 bar_width = xp.mean(xp.diff(zc) / (2 * xp.pi)) * 0.66
                 plt.bar(
-                    xp.asarray(zk.imag) / (2 * xp.pi),
-                    hk,
-                    width=bar_width,
+                    xp.asarray(zk.imag) / (2 * xp.pi), hk, width=bar_width,
                 )
 
             if autocorr:
@@ -228,9 +226,7 @@ def mri_exp_approx(
                     plt.figure(),
                     bar_width = xp.mean(xp.diff(zk.imag) / (2 * xp.pi)) * 0.8
                     plt.bar(
-                        xp.asarray(zk.imag) / (2 * xp.pi),
-                        hk,
-                        width=bar_width,
+                        xp.asarray(zk.imag) / (2 * xp.pi), hk, width=bar_width,
                     )
         else:
             hk, zc = hist_equal(
@@ -261,8 +257,8 @@ def mri_exp_approx(
 
         # GRL  Add this to conserve memory for cases where Eh is not needed
         if atype == "hist,svd" or verbose or (rmsmax < 1):
-            Eh = xp.exp(xp.dot(
-                -ti[:, np.newaxis], zk.ravel()[np.newaxis, :])
+            Eh = xp.exp(
+                xp.dot(-ti[:, np.newaxis], zk.ravel()[np.newaxis, :])
             )  # [N,K]
 
     #
@@ -270,6 +266,7 @@ def mri_exp_approx(
     #
     if atype == "hist,svd":
         import scipy.linalg
+
         try:
             if xp is np:
                 from scipy.sparse import spdiags
@@ -310,8 +307,8 @@ def mri_exp_approx(
                 # Ch is shape (L, K)
                 # Ch = xp.exp(xp.dot(-tl[:, np.newaxis], zk[np.newaxis, :]))
 
-                Ch = xp.exp(xp.dot(
-                    -tl[:, np.newaxis], zk.ravel()[np.newaxis, :])
+                Ch = xp.exp(
+                    xp.dot(-tl[:, np.newaxis], zk.ravel()[np.newaxis, :])
                 )
 
             if (segments > 9) and (tol is None) and (not warned):
@@ -440,9 +437,7 @@ def mri_exp_approx(
 
             if xp.any(rmap):
                 k_means.fit(
-                    xp.stack(
-                        (rmap_np.ravel(), fmap_np.ravel()), axis=-1
-                    )
+                    xp.stack((rmap_np.ravel(), fmap_np.ravel()), axis=-1)
                 )
                 centers = k_means.cluster_centers_
                 si = xp.argsort(centers[:, 1])
@@ -463,7 +458,9 @@ def mri_exp_approx(
             raise ValueError("fs type {} unknown".format(atype))
 
         zl = rl + (2j * xp.pi) * fl
-        B = xp.exp(xp.dot(-ti[:, np.newaxis], zl.ravel()[np.newaxis, :]))  # (M, L)
+        B = xp.exp(
+            xp.dot(-ti[:, np.newaxis], zl.ravel()[np.newaxis, :])
+        )  # (M, L)
 
     else:
         raise ValueError("type {} unknown".format(atype))
@@ -490,4 +487,5 @@ def mri_exp_approx(
 
 if False:
     from mrrt.mri.sim import generate_fieldmap
+
     zmap = generate_fieldmap((64, 64), 80)

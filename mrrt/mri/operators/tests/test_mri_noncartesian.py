@@ -59,7 +59,9 @@ def _test_mri_multi(
     spectral_offsets=None,
 ):
     """Run a batch of NUFFT tests."""
-    all_err_forward = np.zeros((len(recon_cases), len(precisions), len(phasings)))
+    all_err_forward = np.zeros(
+        (len(recon_cases), len(precisions), len(phasings))
+    )
     all_err_adj = np.zeros((len(recon_cases), len(precisions), len(phasings)))
     alltimes = {}
     if not np.isscalar(navg_time):
@@ -89,7 +91,14 @@ def _test_mri_multi(
                     ncr_max = 1
                 # on_gpu = ('GPU' in recon_case)
                 for ncr in range(ncr_max):
-                    (Gn, wi_full, xTrue, ig, data_true, times,) = generate_sim_data(
+                    (
+                        Gn,
+                        wi_full,
+                        xTrue,
+                        ig,
+                        data_true,
+                        times,
+                    ) = generate_sim_data(
                         recon_case=recon_case,
                         ndim=ndim,
                         N0=N0,
@@ -104,7 +113,9 @@ def _test_mri_multi(
                         MRI_object_kwargs=dict(gpu_memflags=gpu_memflags),
                         spectral_offsets=spectral_offsets,
                     )
-                    print("loc_in, loc_out = {}, {}".format(Gn.loc_in, Gn.loc_out))
+                    print(
+                        "loc_in, loc_out = {}, {}".format(Gn.loc_in, Gn.loc_out)
+                    )
 
                 xp = Gn.xp
 
@@ -156,7 +167,9 @@ def _test_mri_multi(
                             "spectral offsets"
                         )
                     nshift_exact = tuple(s / 2 for s in Gn.Nd)
-                    sim_data2 = dtft(xTrue, Gn.omega, shape=Gn.Nd, n_shift=nshift_exact)
+                    sim_data2 = dtft(
+                        xTrue, Gn.omega, shape=Gn.Nd, n_shift=nshift_exact
+                    )
 
                     sd2_norm = xp.linalg.norm(sim_data2)
                     rel_err = xp.linalg.norm(sim_data - sim_data2) / sd2_norm
@@ -170,7 +183,8 @@ def _test_mri_multi(
                         )
                     )
                     rel_err_mag = (
-                        xp.linalg.norm(np.abs(sim_data) - np.abs(sim_data2)) / sd2_norm
+                        xp.linalg.norm(np.abs(sim_data) - np.abs(sim_data2))
+                        / sd2_norm
                     )
                     print(
                         f"{recon_case},{precision},{phasing}: "
@@ -205,7 +219,8 @@ def _test_mri_multi(
                         im_est = im_est.reshape(Gn.Nd, order=Gn.order)
                     else:
                         im_est = im_est.reshape(
-                            tuple(Gn.Nd) + (len(spectral_offsets),), order=Gn.order
+                            tuple(Gn.Nd) + (len(spectral_offsets),),
+                            order=Gn.order,
                         )
 
                 if compare_to_exact:
@@ -222,7 +237,8 @@ def _test_mri_multi(
                             )
                         )
                     rel_err_mag = (
-                        xp.linalg.norm(np.abs(im_est) - np.abs(im_est_exact)) / ex_norm
+                        xp.linalg.norm(np.abs(im_est) - np.abs(im_est_exact))
+                        / ex_norm
                     )
                     if verbose:
                         print(

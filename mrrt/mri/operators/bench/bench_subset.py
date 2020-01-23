@@ -60,4 +60,6 @@ cupy.fft.cache.enable()
 
 # bench_MRI_2d_16coils_nofieldmap(Navg_time=64, **common_kwargs)
 # bench_MRI_2d_16coils_fieldmap(Navg_time=32, **common_kwargs)
-bench_MRI_2d_16coils_fieldmap_multispectral(Navg_time=64, nspectra=2, **common_kwargs)
+bench_MRI_2d_16coils_fieldmap_multispectral(
+    Navg_time=64, nspectra=2, **common_kwargs
+)

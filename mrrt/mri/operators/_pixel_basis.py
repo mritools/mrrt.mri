@@ -9,9 +9,7 @@ class PixelBasis:
     a continuous image and its sampled (discrete) values.
     """
 
-    def __init__(
-        self, kspace, pixel_basis="dirac", dx=None, fov=None, Nd=None
-    ):
+    def __init__(self, kspace, pixel_basis="dirac", dx=None, fov=None, Nd=None):
         """ Initialize a pixel-basis and its transform.
 
         Parameters
@@ -111,7 +109,9 @@ class PixelBasis:
         elif self.type in ["sinc", "dirac*dx"]:
             # simply provide an appropriate "scale factor" dx to relate Fourier
             # integral and summation
-            self.transform = np.ones((nk,)) * prod(f / n for f, n in zip(self.fov, self.Nd))
+            self.transform = np.ones((nk,)) * prod(
+                f / n for f, n in zip(self.fov, self.Nd)
+            )
 
             # make the average scaling close to 1
             self.transform /= self.transform.mean()

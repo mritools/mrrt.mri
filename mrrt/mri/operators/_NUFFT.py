@@ -59,7 +59,7 @@ def compute_Q(G, wi=None, Nd_os=2, Kd_os=1.35, J=5, **extra_nufft_kwargs):
         n_shift=Nd / 2,
         mode=Gnufft_op.mode,
         phasing="real",  # ONLY WORKS IF THIS IS REAL!
-        **extra_nufft_kwargs
+        **extra_nufft_kwargs,
     )
 
     if wi is None:
@@ -117,7 +117,7 @@ class NUFFT_Operator(NufftBase, LinearOperatorMulti):
         loc_in="cpu",
         loc_out="cpu",
         order="F",
-        **kwargs
+        **kwargs,
     ):
 
         # masked boolean if mask is True everywhere or no mask is provided

@@ -150,15 +150,17 @@ def _test_mri_exp_approx1(
 
 
 @pytest.mark.parametrize(
-    'use_rmap, alg',
+    "use_rmap, alg",
     itertools.product(
         [False, True],
-        ["hist,svd",
-         "hist,time,unif",
-         "time,unif",
-         "hist,fs,unif",
-         "hist,fs,prctile",
-         "hist,fs,kmeans"],
+        [
+            "hist,svd",
+            "hist,time,unif",
+            "time,unif",
+            "hist,fs,unif",
+            "hist,fs,prctile",
+            "hist,fs,kmeans",
+        ],
     ),
 )
 def test_mri_exp_approx(use_rmap, alg, verbose=False):
@@ -167,7 +169,7 @@ def test_mri_exp_approx(use_rmap, alg, verbose=False):
 
     tmax = 25e-3  # overall time duration (s)
     wrms, mse_mean, max_err = _test_mri_exp_approx1(
-        segments=8,   # number of segments
+        segments=8,  # number of segments
         nx=64,
         tmax=tmax,
         dt=1e-3,
@@ -179,7 +181,7 @@ def test_mri_exp_approx(use_rmap, alg, verbose=False):
         verbose=verbose,
     )
 
-    if alg == 'hist,fs,prctile' or (use_rmap and alg == 'hist,fs,kmeans'):
+    if alg == "hist,fs,prctile" or (use_rmap and alg == "hist,fs,kmeans"):
         # may want to just remove these options, as they perform relatively
         # poorly
         assert mse_mean < 0.01

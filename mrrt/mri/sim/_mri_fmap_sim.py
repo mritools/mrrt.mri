@@ -1,6 +1,6 @@
 import numpy as np
 
-__all__ = ['generate_fieldmap']
+__all__ = ["generate_fieldmap"]
 
 
 def generate_fieldmap(shape, fmap_peak=80):

@@ -42,7 +42,7 @@ class MRI_Cartesian(LinearOperatorMulti):
         im_mask=None,
         pixel_basis="dirac",
         rel_fov=None,
-        **kwargs
+        **kwargs,
     ):
         """Cartesian MRI Operator  (with partial FFT and coil maps).
 
@@ -154,9 +154,7 @@ class MRI_Cartesian(LinearOperatorMulti):
         if self.fft_axes is None:
             Ntrans = prod(self.arr_shape)
         else:
-            Ntrans = prod(
-                np.asarray(self.arr_shape)[np.asarray(self.fft_axes)]
-            )
+            Ntrans = prod(np.asarray(self.arr_shape)[np.asarray(self.fft_axes)])
         if self.ortho:
             # sqrt of product of shape along axes where FFT is performed
             self.scale_ortho = sqrt(Ntrans)
@@ -359,7 +357,7 @@ class MRI_Cartesian(LinearOperatorMulti):
             symmetric=False,  # TODO: set properly
             hermetian=False,  # TODO: set properly
             dtype=self.result_dtype,
-            **kwargs
+            **kwargs,
         )
 
         self._init_pixel_basis(pixel_basis=pixel_basis)
@@ -500,9 +498,7 @@ class MRI_Cartesian(LinearOperatorMulti):
                             self.coil_sensitivities[imap_coil_slice]
                         )
                     else:
-                        x += (
-                            x0 * self.coil_sensitivities_conj[imap_coil_slice]
-                        )
+                        x += x0 * self.coil_sensitivities_conj[imap_coil_slice]
                 else:
                     x = x0
         else:
@@ -566,14 +562,10 @@ class MRI_Cartesian(LinearOperatorMulti):
                 )
                 if self.order == "C":
                     for i_map in range(self.Nmaps):
-                        x[i_map, ...] = self._adjoint_single_rep(
-                            y, i_map=i_map
-                        )
+                        x[i_map, ...] = self._adjoint_single_rep(y, i_map=i_map)
                 else:
                     for i_map in range(self.Nmaps):
-                        x[..., i_map] = self._adjoint_single_rep(
-                            y, i_map=i_map
-                        )
+                        x[..., i_map] = self._adjoint_single_rep(y, i_map=i_map)
         else:
             if self.order == "C":
                 y = y.reshape(
@@ -586,10 +578,7 @@ class MRI_Cartesian(LinearOperatorMulti):
                 )  # or shape_out?
                 x_shape = self.shape_inM + (nreps,)
 
-            x = xp.zeros(
-                x_shape,
-                dtype=xp.result_type(y, xp.complex64),
-            )
+            x = xp.zeros(x_shape, dtype=xp.result_type(y, xp.complex64),)
             for i_map in range(self.Nmaps):
                 if self.order == "C":
                     for rep in range(nreps):
@@ -621,9 +610,7 @@ class MRI_Cartesian(LinearOperatorMulti):
         else:
             y_shape = self.shape_in1 + (self.Ncoils,)
         y = xp.zeros(
-            y_shape,
-            dtype=xp.result_type(x, xp.complex64),
-            order=self.order,
+            y_shape, dtype=xp.result_type(x, xp.complex64), order=self.order,
         )
         use_smaps = self.coil_sensitivities is not None
         if self.loop_over_coils:
