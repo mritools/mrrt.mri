@@ -8,6 +8,7 @@ from mrrt.utils import config
 if config.have_cupy:
     import cupy
 
+
 def bench_mri_exp_mult(verbose=True):
     """
     test_mri_exp_mult

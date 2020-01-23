@@ -1,10 +1,8 @@
 import os
 from os.path import join as pjoin
 import time
-import warnings
 
 import numpy as np
-import scipy
 
 from mrrt.utils import ImageGeometry
 import mrrt.mri
@@ -560,10 +558,10 @@ def generate_sim_data(
         xp = np
 
     if Gn is None:
-        if ig.mask is not None:
-            mask = np.squeeze(ig.mask)
-        else:
-            mask = None
+        # if ig.mask is not None:
+        #     mask = np.squeeze(ig.mask)
+        # else:
+        #     mask = None
         Gn, tgen, tgen_fmap = generate_MRI_object(
             N=N,
             kspace=kspace,

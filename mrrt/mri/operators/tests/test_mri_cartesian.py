@@ -486,8 +486,7 @@ def test_partial_FFT_allsamples(xp, shift, nd_in, order):
     rtol = 1e-4
     atol = 1e-4
     c = get_data(xp)
-    rstate = xp.random.RandomState(1234)
-    sample_mask = rstate.rand(*(128, 127)) > 0.5
+    sample_mask = xp.ones(c.shape)
     """ masked FFT without missing samples """
     # TODO: when all samples are present, can test against normal FFT
     nd_out = False
@@ -497,7 +496,7 @@ def test_partial_FFT_allsamples(xp, shift, nd_in, order):
         use_fft_shifts=shift,
         nd_input=nd_in,
         nd_output=nd_out,
-        sample_mask=xp.ones(c.shape),
+        sample_mask=sample_mask,
         gpu_force_reinit=False,
         mask_kspace_on_gpu=(not shift),
         **get_loc(xp)
@@ -600,9 +599,6 @@ def test_partial_FFT_with_im_mask(xp, shift, nd_in, order):
         **get_loc(xp)
     )
 
-    # create new linear operator for forward followed by inverse transform
-    FtF = FTop.H * FTop
-
     # test forward only
     forw = embed(
         FTop * masker(c, im_mask, order=order), sample_mask, order=order
@@ -626,6 +622,14 @@ def test_partial_FFT_with_im_mask(xp, shift, nd_in, order):
     xp.testing.assert_allclose(
         roundtrip, expected_roundtrip, rtol=1e-7, atol=1e-4
     )
+
+    # TODO: grlee77: fix FtF operation on masked data and uncomment case below
+    # # create new linear operator for forward followed by inverse transform
+    # FtF = FTop.H * FTop
+    # roundtrip2 = FtF * masker(c, im_mask, order=order)
+    # xp.testing.assert_allclose(
+    #     roundtrip2, expected_roundtrip, rtol=1e-7, atol=1e-4
+    # )
 
     # test roundtrip with 2 reps
     c2 = xp.stack([c] * 2, axis=-1)

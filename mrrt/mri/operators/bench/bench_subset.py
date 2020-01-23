@@ -1,4 +1,6 @@
-import mrrt.mri.operators
+import cupy
+from cupy.cuda import device
+
 from mrrt.mri.operators.bench.bench_MRI import (
     bench_MRI_2d_nocoils_nofieldmap,
     bench_MRI_2d_16coils_nofieldmap,
@@ -51,10 +53,8 @@ common_kwargs = dict(
     save_dir="/tmp",
 )
 
-from cupy.cuda import device
 
 device.get_cusparse_handle()
-import cupy
 
 cupy.fft.cache.enable()
 

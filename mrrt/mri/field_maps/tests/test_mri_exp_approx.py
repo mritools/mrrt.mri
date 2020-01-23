@@ -117,10 +117,10 @@ def _test_mri_exp_approx1(
         subplot_stack(1000 * ti, B, title="Basis Components", colors=["k", "m"])
 
     nf = np.floor(nhist[0] / 4)
-    if len(nhist) is 2:
+    if len(nhist) == 2:
         ik = np.array([0, nf, 2 * nf, 3 * nf, nhist[1] - 1]) + 2 * nf * nhist[1]
         ik = ik.tolist()
-    elif len(nhist) is 1:
+    elif len(nhist) == 1:
         ik = [0, nf, 2 * nf, 3 * nf, nhist[0] - 1]
     ik = np.asarray(ik, dtype=int)
 

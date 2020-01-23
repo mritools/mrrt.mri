@@ -15,7 +15,6 @@ from __future__ import division, print_function, absolute_import
 from math import ceil
 import warnings
 import numpy as np
-from copy import deepcopy
 from mrrt.mri import mri_exp_approx
 from mrrt.mri.operators import NUFFT_Operator
 from mrrt.utils import (
@@ -31,7 +30,6 @@ from mrrt.utils import (
 
 from mrrt.operators import (
     BlockDiagLinOp,
-    CompositeLinOp,
     DiagonalOperator,
     LinearOperatorMulti,
 )
@@ -355,7 +353,6 @@ class MRI_Operator(LinearOperatorMulti):
             if on_gpu:
                 self.omega = cupy.asarray(self.omega)
 
-
             # Find a size amenable to fast FFT, but also a multiple of 8
             # The choice of 8 is somewhat arbitrary, but ensures that for
             # instance a 3-level periodization wavelet transform can be
@@ -502,6 +499,9 @@ class MRI_Operator(LinearOperatorMulti):
     def _init_exact(self):
         """Iniatilization for exact (slow) transform."""
         N = self.Nd
+        ndim = self.ndim
+        xp = self.xp
+        mask = self.mask
         if self.n_shift is None:
             raise ValueError("n_shift required when exact=True")
         if True:
@@ -1097,7 +1097,7 @@ class MRI_Operator(LinearOperatorMulti):
                 if loop_over_coils:
                     if (
                         self.coil_sensitivities is not None
-                    ):  #  and xp.any(self.coil_sensitivities):
+                    ):  # and xp.any(self.coil_sensitivities):
                         y = xp.empty(
                             (self.shape[0], nreps), dtype=x.dtype, order=self.order
                         )
@@ -1340,8 +1340,7 @@ class MRI_Operator(LinearOperatorMulti):
             # TODO: make sure this is valid for the Gnufft object
             self.Gnufft.sn = None
         try:
-
-            if self.zmap is None:  #  or (not xp.any(self.zmap)):
+            if self.zmap is None:  # or (not xp.any(self.zmap)):
                 x = xp.empty(
                     (self.shape[1] // self.nspectra, nreps),
                     dtype=y.dtype,
@@ -1497,7 +1496,6 @@ class MRI_Operator(LinearOperatorMulti):
         x = xp.asfortranarray(x)  # TODO: necessary?
         return x
 
-    # @profile
     def prep_Toeplitz(self, weights=None):
         raise NotImplementedError("TODO")
         xp = self.xp
@@ -1528,14 +1526,14 @@ class MRI_Operator(LinearOperatorMulti):
         if not hasattr(self.Gnufft, "Q"):
             self.Gnufft.prep_toeplitz()
 
-        if False:
-            if self.W_op is None:
-                T = CompositeLinOp(self.Gnufft.H, self.Gnufft)
-            else:
-                T = CompositeLinOp(self.Gnufft.H, W_op, self.Gnufft)
-        else:
-            # FT_op = FFT_Operator(self.Nd)
-            pass
+        # if False:
+        #     if self.W_op is None:
+        #         T = CompositeLinOp(self.Gnufft.H, self.Gnufft)
+        #     else:
+        #         T = CompositeLinOp(self.Gnufft.H, W_op, self.Gnufft)
+        # else:
+        #     # FT_op = FFT_Operator(self.Nd)
+        #     pass
 
     @profile
     def norm(self, x):
@@ -1543,15 +1541,15 @@ class MRI_Operator(LinearOperatorMulti):
         x = complexify(x, xp=self.xp)
         # if self.mask is not None:
         #     x = xp.embed(x, self.mask, xp=self.xp)
-        try:
-            if x.size % self.nargin != 0:
-                raise ValueError("wrong size input")
-            nreps = x.size // self.nargin
-        except IndexError:
-            nreps = 1
+        # try:
+        #     if x.size % self.nargin != 0:
+        #         raise ValueError("wrong size input")
+        #     nreps = x.size // self.nargin
+        # except IndexError:
+        #     nreps = 1
 
         if hasattr(self, "Q"):
-            D = self.weights
+            #   D = self.weights
             raise NotImplementedError("TODO")
         #            slices = [slice(None), ]*x.ndim
         #            for d in range(len(self.Nd)):
