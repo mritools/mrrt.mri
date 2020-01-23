@@ -320,11 +320,11 @@ def _old_bar_graph(bench_tuple):
         plt.title(field, fontdict=dict(fontsize=24))
 
 
-# Navg_time=10; plot_timings=True; include_GPU=True; include_CPU=True; print_timings=True; phasings=['real', 'complex']
+# navg_time=10; plot_timings=True; include_GPU=True; include_CPU=True; print_timings=True; phasings=['real', 'complex']
 
 
 def bench_mri_2d_nocoils_nofieldmap(
-    Navg_time=(4, 16),
+    navg_time=(4, 16),
     plot_timings=False,
     include_GPU=False,
     include_CPU=True,
@@ -345,16 +345,16 @@ def bench_mri_2d_nocoils_nofieldmap(
     t = _test_mri_multi(
         ndim=2,
         N0=64,
-        gridOS_factor=1.5,
+        grid_os_factor=1.5,
         J0=4,
         Ld=4096,
-        Ncoils=1,
+        n_coils=1,
         fieldmap_segments=None,
         precisions=precisions,
         phasings=phasings,
         recon_cases=recon_cases,
         compare_to_exact=False,
-        Navg_time=Navg_time,
+        navg_time=navg_time,
     )
 
     t_create, t_forward, t_adj, t_norm = _split_timings(t, print_timings)
@@ -377,7 +377,7 @@ def bench_mri_2d_nocoils_nofieldmap(
 
 
 def bench_mri_2d_16coils_nofieldmap(
-    Navg_time=(4, 16),
+    navg_time=(4, 16),
     plot_timings=False,
     include_GPU=False,
     include_CPU=True,
@@ -398,16 +398,16 @@ def bench_mri_2d_16coils_nofieldmap(
     t = _test_mri_multi(
         ndim=2,
         N0=128,
-        gridOS_factor=1.5,
+        grid_os_factor=1.5,
         J0=4,
         Ld=4096,
-        Ncoils=16,
+        n_coils=16,
         fieldmap_segments=None,
         precisions=precisions,
         phasings=phasings,
         recon_cases=recon_cases,
         compare_to_exact=False,
-        Navg_time=Navg_time,
+        navg_time=navg_time,
     )
 
     t_create, t_forward, t_adj, t_norm = _split_timings(t, print_timings)
@@ -430,7 +430,7 @@ def bench_mri_2d_16coils_nofieldmap(
 
 
 def bench_mri_2d_16coils_fieldmap(
-    Navg_time=(2, 8),
+    navg_time=(2, 8),
     plot_timings=False,
     include_GPU=False,
     include_CPU=True,
@@ -451,16 +451,16 @@ def bench_mri_2d_16coils_fieldmap(
     t = _test_mri_multi(
         ndim=2,
         N0=64,
-        gridOS_factor=1.5,
+        grid_os_factor=1.5,
         J0=4,
         Ld=4096,
-        Ncoils=16,
+        n_coils=16,
         fieldmap_segments=6,
         precisions=precisions,
         phasings=phasings,
         recon_cases=recon_cases,
         compare_to_exact=False,
-        Navg_time=4,
+        navg_time=4,
     )
 
     t_create, t_forward, t_adj, t_norm = _split_timings(t, print_timings)
@@ -483,7 +483,7 @@ def bench_mri_2d_16coils_fieldmap(
 
 
 def bench_mri_2d_16coils_fieldmap_multispectral(
-    Navg_time=(1, 4),
+    navg_time=(1, 4),
     plot_timings=False,
     include_GPU=False,
     include_CPU=True,
@@ -510,16 +510,16 @@ def bench_mri_2d_16coils_fieldmap_multispectral(
     t = _test_mri_multi(
         ndim=2,
         N0=64,
-        gridOS_factor=1.5,
+        grid_os_factor=1.5,
         J0=4,
         Ld=4096,
-        Ncoils=16,
+        n_coils=16,
         fieldmap_segments=6,
         precisions=precisions,
         phasings=phasings,
         recon_cases=recon_cases,
         compare_to_exact=False,
-        Navg_time=4,
+        navg_time=4,
         spectral_offsets=spectral_offsets,
     )
 
@@ -540,7 +540,7 @@ def bench_mri_2d_16coils_fieldmap_multispectral(
 
 
 def bench_mri_3d_nocoils_nofieldmap(
-    Navg_time=(2, 8),
+    navg_time=(2, 8),
     plot_timings=False,
     include_GPU=False,
     include_CPU=True,
@@ -561,16 +561,16 @@ def bench_mri_3d_nocoils_nofieldmap(
     t = _test_mri_multi(
         ndim=3,
         N0=64,
-        gridOS_factor=1.5,
+        grid_os_factor=1.5,
         J0=4,
         Ld=4096,
-        Ncoils=1,
+        n_coils=1,
         fieldmap_segments=None,
         precisions=precisions,
         phasings=phasings,
         recon_cases=recon_cases,
         compare_to_exact=False,
-        Navg_time=Navg_time,
+        navg_time=navg_time,
     )
 
     t_create, t_forward, t_adj, t_norm = _split_timings(t, print_timings)
@@ -593,7 +593,7 @@ def bench_mri_3d_nocoils_nofieldmap(
 
 
 def bench_mri_3d_nocoils_fieldmap(
-    Navg_time=(2, 8),
+    navg_time=(2, 8),
     plot_timings=False,
     include_GPU=False,
     include_CPU=True,
@@ -614,16 +614,16 @@ def bench_mri_3d_nocoils_fieldmap(
     t = _test_mri_multi(
         ndim=3,
         N0=64,
-        gridOS_factor=1.5,
+        grid_os_factor=1.5,
         J0=4,
         Ld=4096,
-        Ncoils=1,
+        n_coils=1,
         fieldmap_segments=6,
         precisions=precisions,
         phasings=phasings,
         recon_cases=recon_cases,
         compare_to_exact=False,
-        Navg_time=Navg_time,
+        navg_time=navg_time,
     )
 
     t_create, t_forward, t_adj, t_norm = _split_timings(t, print_timings)
@@ -646,7 +646,7 @@ def bench_mri_3d_nocoils_fieldmap(
 
 
 def bench_mri_3d_16coils_nofieldmap(
-    Navg_time=(1, 4),
+    navg_time=(1, 4),
     plot_timings=False,
     include_GPU=False,
     include_CPU=True,
@@ -667,16 +667,16 @@ def bench_mri_3d_16coils_nofieldmap(
     t = _test_mri_multi(
         ndim=3,
         N0=64,
-        gridOS_factor=1.5,
+        grid_os_factor=1.5,
         J0=4,
         Ld=4096,
-        Ncoils=16,
+        n_coils=16,
         fieldmap_segments=None,
         precisions=precisions,
         phasings=phasings,
         recon_cases=recon_cases,
         compare_to_exact=False,
-        Navg_time=Navg_time,
+        navg_time=navg_time,
     )
 
     t_create, t_forward, t_adj, t_norm = _split_timings(t, print_timings)
@@ -699,7 +699,7 @@ def bench_mri_3d_16coils_nofieldmap(
 
 
 def bench_mri_3d_16coils_fieldmap(
-    Navg_time=(1, 4),
+    navg_time=(1, 4),
     plot_timings=False,
     include_GPU=False,
     include_CPU=True,
@@ -720,16 +720,16 @@ def bench_mri_3d_16coils_fieldmap(
     t = _test_mri_multi(
         ndim=3,
         N0=64,
-        gridOS_factor=1.5,
+        grid_os_factor=1.5,
         J0=4,
         Ld=4096,
-        Ncoils=16,
+        n_coils=16,
         fieldmap_segments=6,
         precisions=precisions,
         phasings=phasings,
         recon_cases=recon_cases,
         compare_to_exact=False,
-        Navg_time=Navg_time,
+        navg_time=navg_time,
     )
 
     t_create, t_forward, t_adj, t_norm = _split_timings(t, print_timings)
@@ -778,15 +778,15 @@ def run_all_bench(
         cupy.fft.cache.enable()
 
     # 2d cases
-    bench_mri_2d_nocoils_nofieldmap(Navg_time=(4, 20), **common_kwargs)
-    bench_mri_2d_16coils_nofieldmap(Navg_time=(2, 8), **common_kwargs)
-    bench_mri_2d_16coils_fieldmap(Navg_time=(2, 8), **common_kwargs)
+    bench_mri_2d_nocoils_nofieldmap(navg_time=(4, 20), **common_kwargs)
+    bench_mri_2d_16coils_nofieldmap(navg_time=(2, 8), **common_kwargs)
+    bench_mri_2d_16coils_fieldmap(navg_time=(2, 8), **common_kwargs)
     bench_mri_2d_16coils_fieldmap_multispectral(
-        Navg_time=4, nspectra=2, **common_kwargs
+        navg_time=4, nspectra=2, **common_kwargs
     )
 
     # 3d cases
-    bench_mri_3d_nocoils_nofieldmap(Navg_time=(2, 4), **common_kwargs)
-    bench_mri_3d_nocoils_fieldmap(Navg_time=(2, 4), **common_kwargs)
-    bench_mri_3d_16coils_nofieldmap(Navg_time=(1, 4), **common_kwargs)
-    bench_mri_3d_16coils_fieldmap(Navg_time=(1, 4), **common_kwargs)
+    bench_mri_3d_nocoils_nofieldmap(navg_time=(2, 4), **common_kwargs)
+    bench_mri_3d_nocoils_fieldmap(navg_time=(2, 4), **common_kwargs)
+    bench_mri_3d_16coils_nofieldmap(navg_time=(1, 4), **common_kwargs)
+    bench_mri_3d_16coils_fieldmap(navg_time=(1, 4), **common_kwargs)

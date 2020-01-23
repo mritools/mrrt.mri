@@ -19,15 +19,15 @@ nvprof --print-gpu-trace python example_debug.py
 
 """
 
-from mrrt.operators.bench.bench_MRI import (
-    bench_MRI_2d_nocoils_nofieldmap,
-    bench_MRI_2d_16coils_fieldmap,
+from mrrt.operators.bench.bench_mri import (
+    bench_mri_2d_nocoils_nofieldmap,
+    bench_mri_2d_16coils_fieldmap,
 )
 
-bench_MRI_2d_nocoils_nofieldmap(
-    Navg_time=1, include_GPU=True, include_CPU=False, print_timings=True
+bench_mri_2d_nocoils_nofieldmap(
+    navg_time=1, include_GPU=True, include_CPU=False, print_timings=True
 )
 
-bench_MRI_2d_16coils_fieldmap(
-    Navg_time=1, include_GPU=True, include_CPU=False, print_timings=True
+bench_mri_2d_16coils_fieldmap(
+    navg_time=1, include_GPU=True, include_CPU=False, print_timings=True
 )

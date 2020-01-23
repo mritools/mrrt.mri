@@ -1,1 +1,1 @@
-from .bench_MRI import *  # noqa
+from .bench_mri import *  # noqa
