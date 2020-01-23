@@ -1,0 +1,87 @@
+pykrylov vs linop:
+
+BaseLinearOperator:
+    in pykrylov has an additional "hermitian" argument
+    in linop has an additional dot() method to call __mul__ (to match numpy notation)
+
+LinearOperator:
+    in linop:  rmatvec instead of matvec_transp & matvec_adj
+    in pykrylov:  added rmatvec for scipy compatibility, but prefer just calling .H instead
+
+
+    def rmatvec(self, x):
+        """
+        Product with the conjugate transpose. This method is included for
+        compatibility with Scipy only. Please use the `H` attribute instead.
+        """
+        return self.__H.__mul__(x)
+
+    for scalars:
+        def matvec(y):
+            return x * (self(y))
+
+        def matvec_transp(y):
+            return x * (self.T(y))
+
+        def matvec_adj(y):
+            return x.conjugate() * (self.H(y))
+    for linops:
+        def matvec(x):
+            return self(op(x))
+
+        def matvec_transp(x):
+            return op.T(self.T(x))
+
+        def matvec_adj(x):
+            return op.H(self.H(x))
+
+
+linop added the following operators:
+    class MatrixLinearOperator(LinearOperator):
+    
+        """
+        Class representing a matrix operator.
+    
+        A linear operator wrapping the multiplication with a matrix and its
+        transpose (real) or conjugate transpose (complex). The operator's dtype
+        is the same as the specified `matrix` argument.
+
+    def aslinearoperator(A):
+        """Return A as a LinearOperator.
+    
+        'A' may be any of the following types:
+        - linop.LinearOperator
+        - scipy.LinearOperator
+        - ndarray
+        - matrix
+        - sparse matrix (e.g. csr_matrix, lil_matrix, etc.)
+        - any object with .shape and .matvec attributes
+    
+        See the :class:`LinearOperator` documentation for additonal information.
+    
+        .. versionadded:: 0.4
+    
+        """
+
+        # some shorter aliases
+        MatrixOperator = MatrixLinearOperator
+        aslinop = aslinearoperator
+
+
+pykrylov added the following, not in linop:
+    
+    def CoordLinearOperator(vals, rows, cols,
+                            nargin=0, nargout=0, symmetric=False):
+        """
+        Return a linear operator from a sparse matrix in coordinate format.
+        If `nargin` or `nargout` is not specified, it will be inferred from
+        `rows` and `cols`. If `symmetric` is `True`, then `vals`, `rows` and
+        `cols` are assumed to only represent one triangle of the operator.
+        """
+
+    def sqrt(op):
+        """
+        Return the square root of a linear operator, if defined. Note that
+        this is not the elementwise square root. The result is a linear operator
+        that, when composed with itself, yields the original operator.
+    """
