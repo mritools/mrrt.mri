@@ -13,8 +13,7 @@ map estimation function by Souheil Inati that is included in Gadgetron.
 
 import warnings
 import numpy as np
-from pyir.utils import reale
-from pyir.utils._cupy import get_array_module
+from mrrt.utils import reale, get_array_module
 
 
 __all__ = ["apply_pca_weights", "coil_pca", "coil_pca_noncart"]

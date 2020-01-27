@@ -3,7 +3,6 @@ import itertools
 import numpy as np
 import pytest
 
-# from pyir.utils import max_percent_diff
 from mrrt.mri import mri_exp_mult
 from mrrt.utils import config
 

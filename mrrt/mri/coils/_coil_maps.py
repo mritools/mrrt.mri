@@ -13,7 +13,7 @@ map estimation function by Souheil Inati that is included in Gadgetron.
 
 import numpy as np
 from scipy import ndimage as ndi
-from pyir.utils._cupy import get_array_module
+from mrrt.utils._cupy import get_array_module
 
 
 __all__ = ["apply_csm", "calculate_csm_inati"]
