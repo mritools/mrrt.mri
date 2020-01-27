@@ -1,4 +1,3 @@
-import cupy
 from cupy.cuda import device
 import matplotlib.pyplot as plt
 
