@@ -163,6 +163,7 @@ def _test_mri_exp_approx1(
         ],
     ),
 )
+@pytest.mark.filterwarnings("ignore:the matrix subclass is not")
 def test_mri_exp_approx(use_rmap, alg, verbose=False):
     if alg == ["hist,fs,kmeans"]:
         pytest.importorskip("sklearn")
@@ -187,34 +188,3 @@ def test_mri_exp_approx(use_rmap, alg, verbose=False):
         assert mse_mean < 0.01
     else:
         assert mse_mean < 1e-5
-
-
-# # ##
-# # # self test / example
-# # ##
-# def mri_exp_approx_test2():
-#     import numpy as np
-#     import scipy.ndimage as ndi
-#     from mrrt.mri import mri_exp_approx
-
-#     dt = 2.5e-6
-#     ti = np.arange(0, 15e-3, dt)  # 5ms readout with 2.5us sampling
-
-#     fmap = np.zeros((64, 64))
-#     fmap[16:28, 9:19] = 90
-#     fmap[36:57, 9:19] = 120
-#     fmap[5:26, 29:59] = 30
-#     fmap[37:58, 29:59] = -60
-#     fmap = 10 + 3 * ndi.uniform_filter(fmap, size=5)
-
-#     mask = np.ones(fmap.shape, dtype=np.bool)
-
-#     rmap = 0
-#     nhist = 40
-#     zmap = rmap + 2j*np.pi * fmap
-
-#     B, C, hk, zk = mri_exp_approx(ti, zmap, segments=12,
-#                                   approx_type=('hist,time,unif', [nhist, ]))
-
-#     plt.figure()
-#     plt.plot(np.dot(B, C[:, ::100]))
