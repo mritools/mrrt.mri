@@ -174,11 +174,9 @@ def sensemap_sim(
     # list of angles in radians
     # ncoil) / coils_per_ring
     alist = xp.deg2rad(orbit) * xp.linspace(0, 1, coils_per_ring + 1)[:-1]
-    print("alist={}".format(alist))
     z_ring = (xp.arange(1, nring + 1) - (nring + 1) / 2) * dz_coil
     for ir in range(nring):
         alist_ring = alist + xp.deg2rad(orbit_start[ir])
-        print("alist_ring={}".format(alist_ring))
         for ic in range(coils_per_ring):
             phi = alist_ring[ic]
             maxval = xp.max(xp.asarray([nx / 2 * dx, ny / 2 * dy]))
