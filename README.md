@@ -16,7 +16,7 @@ imaging (MRI) reconstruction.
 Installation
 ------------
 
-TODO
+pip install mri
 
 **Requires:**
 
@@ -40,3 +40,13 @@ TODO
 Documentation
 ------------
 TODO
+
+
+[CuPy]: https://cupy.chainer.org
+[mrrt.operators]: https://github.com/mritools/mrrt.operators
+[mrrt.nufft]: https://github.com/mritools/mrrt.nufft
+[mrrt.utils]: https://github.com/mritools/mrrt.utils
+[NumPy]: https://numpy.org
+[pytest]: https://docs.pytest.org/en/latest/
+[SciPy]: https://scipy.org
+
