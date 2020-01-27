@@ -113,9 +113,6 @@ def _test_mri_multi(
                         MRI_object_kwargs=dict(gpu_memflags=gpu_memflags),
                         spectral_offsets=spectral_offsets,
                     )
-                    print(
-                        "loc_in, loc_out = {}, {}".format(Gn.loc_in, Gn.loc_out)
-                    )
 
                 xp = Gn.xp
 
@@ -126,8 +123,8 @@ def _test_mri_multi(
                     sim_data = Gn * xTrue
                     sim_data += 0.0
                 sim_data = xp.squeeze(sim_data)  # TODO: should be 1D already?
-                print("type(xTrue) = {}".format(type(xTrue)))
-                print("type(sim_data) = {}".format(type(sim_data)))
+                # print("type(xTrue) = {}".format(type(xTrue)))
+                # print("type(sim_data) = {}".format(type(sim_data)))
                 t_for = (time.time() - tstart) / navg_time
                 times["MRI: forward"] = t_for
 
