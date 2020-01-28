@@ -290,11 +290,11 @@ def generate_MRI_object(
     # loc_in = loc_out = 'cpu'
     if fieldmap_during_init and fieldmap_segments is not None:
         # configure fieldmap at the time of object initialization
-        fieldmap_kwargs = dict(zmap=zmap, L=fieldmap_segments)
+        fieldmap_kwargs = dict(zmap=zmap, fieldmap_segments=fieldmap_segments)
         if not spectral_offsets:
             nti = allti.shape[0] // n_shots
             fieldmap_kwargs["ti"] = allti[:nti]
-            fieldmap_kwargs["Nidentical_reps"] = n_shots
+            fieldmap_kwargs["n_shots"] = n_shots
     else:
         fieldmap_kwargs = {}
 
@@ -317,7 +317,7 @@ def generate_MRI_object(
         **extra_args,
     )
     # TODO: can zmap be specified at creation time rather than later via new_zmap?
-    # ti=ti, zmap=zmap, L=6, table_based=True)
+    # ti=ti, zmap=zmap, fieldmap_segments=6, table_based=True)
 
     tgen = time.time() - tstart
     if verbose:
@@ -330,8 +330,8 @@ def generate_MRI_object(
             Gn.new_zmap(
                 ti=allti[:nti],
                 zmap=zmap,
-                L=fieldmap_segments,
-                Nidentical_reps=n_shots,
+                fieldmap_segments=fieldmap_segments,
+                n_shots=n_shots,
             )
             tgen_fmap = time.time() - tstart
         else:

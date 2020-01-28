@@ -81,14 +81,14 @@ def determine_fieldmap_segments(
     zmap,
     mask=None,
     approx_type="default",
-    Lstart=5,
+    fieldmap_segments_start=5,
     err_thresh=1e-6,
     exp_approx_args={},
     xp=np,
 ):
     """Determine an appropriate number of fieldmap segments."""
-    L = Lstart
-    Ladjust = 0
+    fieldmap_segments = fieldmap_segments_start
+    fieldmap_segments_adjust = 0
     error_acceptable = False
     if mask is not None:
         zmap = masker(zmap, mask, xp=xp)
@@ -96,7 +96,7 @@ def determine_fieldmap_segments(
         fmap_basis, C, hk, zk = mri_exp_approx(
             ti=ti,
             zmap=zmap,
-            segments=L,
+            segments=fieldmap_segments,
             approx_type=approx_type,
             ctest=True,
             **exp_approx_args,
@@ -109,21 +109,25 @@ def determine_fieldmap_segments(
         # wrms = xp.sqrt((mse[None, :] * hk[:, None]) / hk.sum())
         # ik = xp.round(xp.linspace(1,nhist,8))
         err_max = xp.max(err.mean())
-        print("L={}, err_max={}".format(L, err_max))
+        print(
+            "fieldmap_segments={}, err_max={}".format(
+                fieldmap_segments, err_max
+            )
+        )
 
         if err_max > err_thresh:
-            print("approximation is poor.  increasing L by 1")
-            L += 1
-            Ladjust += 1  # try again
+            print("approximation is poor.  increasing fieldmap_segments by 1")
+            fieldmap_segments += 1
+            fieldmap_segments_adjust += 1  # try again
         else:
             # accuracy is satisfactory as is
             error_acceptable = True
 
-        if Ladjust > 9:
+        if fieldmap_segments_adjust > 9:
             raise ValueError(
-                "Unable to get reasonable accuracy with small increase" "in L"
+                "Unable to get reasonable accuracy with small increase in fieldmap_segments"
             )
-    return L
+    return fieldmap_segments
 
 
 class MRI_Operator(LinearOperatorMulti):
@@ -205,12 +209,12 @@ class MRI_Operator(LinearOperatorMulti):
             image field of view (e.g. in mm)
         Gnufft : NUFFT_Operator
             use the provided Gnufft operator instead of generating a new one
-        L : int, optional
+        fieldmap_segments : int, optional
             number of fieldmap approximation terms (see `mri_exp_approx`)
-        aL : int, optional
+        acorr_fieldmap_segments : int, optional
             number of fieldmap approximation terms for autocorrelation
             histogram in Toeplitz version
-        Nidentical_reps : int, optional
+        n_shots : int, optional
             Used to specify that the trajectory is multiple shots over
             identical time intervals.  Used to speed up zmap calculation by
             passing in `ti` for a single repetition.
@@ -433,7 +437,7 @@ class MRI_Operator(LinearOperatorMulti):
         if self.spectral_offsets is not None:
             # Note: uses self.ti as set by self._init_fieldmap
             self._init_multispectral(
-                Nidentical_reps=self.kspace.shape[0] // self.ti.size
+                n_shots=self.kspace.shape[0] // self.ti.size
             )
 
         """
@@ -568,33 +572,41 @@ class MRI_Operator(LinearOperatorMulti):
     def _init_fieldmap(self, kwargs):
         """Called by __init__ to initialize the fieldmap variables."""
         # new fieldmap stuff
-        # Nidentical_reps can speed up zmap calculation in case where the
+        # n_shots can speed up zmap calculation in case where the
         # trajectory is multiple shots over identical time interval
         xp = self.xp
         self.zmap = kwargs.pop("zmap", None)
         self.ti = kwargs.pop("ti", None)
         if self.ti is not [] and self.ti is not None:
             self.ti = xp.asarray(self.ti)
-        self.L = kwargs.pop("L", None)
-        if self.L is None and self.ti is not None and self.zmap is not None:
-            self.L = determine_fieldmap_segments(
-                self.ti, self.zmap, Lstart=3, xp=xp
+        self.fieldmap_segments = kwargs.pop("fieldmap_segments", None)
+        if (
+            self.fieldmap_segments is None
+            and self.ti is not None
+            and self.zmap is not None
+        ):
+            self.fieldmap_segments = determine_fieldmap_segments(
+                self.ti, self.zmap, fieldmap_segments_start=3, xp=xp
             )
-        # aL is for autocorrelation zmap. default is kwargs['L']
-        self.aL = kwargs.pop("aL", self.L)
-        self.Nidentical_reps = kwargs.pop("Nidentical_reps", 1)
+        # acorr_fieldmap_segments is for autocorrelation zmap. default is kwargs['L']
+        self.acorr_fieldmap_segments = kwargs.pop(
+            "acorr_fieldmap_segments", self.fieldmap_segments
+        )
+        self.n_shots = kwargs.pop("n_shots", 1)
 
         # add zmap if available now.
         if self.zmap is not None:
-            if (not self.exact) and (self.L is None or self.ti is None):
+            if (not self.exact) and (
+                self.fieldmap_segments is None or self.ti is None
+            ):
                 raise ValueError(
-                    "field-corrected recon:  zmap specified without ti and L"
+                    "field-corrected recon:  zmap specified without ti and fieldmap_segments"
                 )
             self.new_zmap(
                 ti=self.ti,
                 zmap=self.zmap,
-                L=self.L,
-                Nidentical_reps=self.Nidentical_reps,
+                fieldmap_segments=self.fieldmap_segments,
+                n_shots=self.n_shots,
             )
 
     def _init_density_compensation(
@@ -658,7 +670,7 @@ class MRI_Operator(LinearOperatorMulti):
 
         self.__weights = weights
 
-    def _init_multispectral(self, Nidentical_reps):
+    def _init_multispectral(self, n_shots):
         # initialize arrays for multi-spectral reconstruction
         xp = self.xp
         if self.spectral_offsets is None:
@@ -673,8 +685,8 @@ class MRI_Operator(LinearOperatorMulti):
                 self.offset_arrays.append(None)
             elif np.isscalar(f):
                 v = xp.exp(1j * 2 * xp.pi * f * self.ti.ravel(order="F"))
-                if Nidentical_reps > 1:
-                    v = xp.concatenate((v,) * Nidentical_reps, axis=0)
+                if n_shots > 1:
+                    v = xp.concatenate((v,) * n_shots, axis=0)
                 self.offset_arrays.append(v)
             else:  # tuple of 2-tuples
                 if not all(len(ff) == 2 for ff in f):
@@ -688,8 +700,8 @@ class MRI_Operator(LinearOperatorMulti):
                 offset_set = []
                 for w, ff in f:
                     v = xp.exp(1j * 2 * xp.pi * ff * self.ti.ravel(order="F"))
-                    if Nidentical_reps > 1:
-                        v = xp.concatenate((v,) * Nidentical_reps, axis=0)
+                    if n_shots > 1:
+                        v = xp.concatenate((v,) * n_shots, axis=0)
                     offset_set.append((w, v))
                 self.offset_arrays.append(tuple(offset_set))
 
@@ -840,13 +852,13 @@ class MRI_Operator(LinearOperatorMulti):
         self.ti = MRIop2.ti
         self.zmap = MRIop2.zmap
         self.fmap_coeffs = MRIop2.fmap_coeffs
-        self.L = MRIop2.L
+        self.fieldmap_segments = MRIop2.fieldmap_segments
         self.exp_approx_type = MRIop2.exp_approx_type
         self.exp_approx_args = MRIop2.exp_approx_args
         self.fmap_basis = MRIop2.fmap_basis
 
     # @profile
-    def copy_zmap_new_ti(self, MRIop2, ti, Nidentical_reps=1):
+    def copy_zmap_new_ti(self, MRIop2, ti, n_shots=1):
         """Used to share zmap, fmap_coeffs across segments in multi-segment recon."""
         if not hasattr(MRIop2, "zmap") or MRIop2.zmap is None:
             raise ValueError("No zmap to copy")
@@ -859,7 +871,7 @@ class MRI_Operator(LinearOperatorMulti):
         self.ti = ti.ravel(order="F")
         self.zmap = MRIop2.zmap
         self.fmap_coeffs = MRIop2.fmap_coeffs
-        self.L = MRIop2.L
+        self.fieldmap_segments = MRIop2.fieldmap_segments
         self.exp_approx_type = MRIop2.exp_approx_type
         self.exp_approx_args = MRIop2.exp_approx_args
 
@@ -875,7 +887,7 @@ class MRI_Operator(LinearOperatorMulti):
             self.fmap_basis, C, hk, zk = mri_exp_approx(
                 ti=self.ti,
                 zmap=self.zmap,
-                segments=self.L,
+                segments=self.fieldmap_segments,
                 approx_type=self.exp_approx_type,
                 **self.exp_approx_args,
             )
@@ -884,25 +896,25 @@ class MRI_Operator(LinearOperatorMulti):
         if self.fmap_basis.dtype != self.Gnufft._cplx_dtype:
             self.fmap_basis = self.fmap_basis.astype(self.Gnufft._cplx_dtype)
 
-        if Nidentical_reps > 1:
+        if n_shots > 1:
             """when there are multiple shots with same time vector can just
             duplicate here."""
-            self.fmap_basis = xp.tile(self.fmap_basis, [Nidentical_reps, 1])
+            self.fmap_basis = xp.tile(self.fmap_basis, [n_shots, 1])
 
         if xp.any(xp.isnan(self.fmap_basis)):
             raise ValueError("bug: nan values in fmap_basis")
 
-        self.L = self.fmap_basis.shape[1]
+        self.fieldmap_segments = self.fmap_basis.shape[1]
 
     # @profile
     def new_zmap(
         self,
         ti,
         zmap,
-        L=None,
-        Nidentical_reps=1,
-        aL=None,
-        calc_acorr_fmap_basis=False,
+        fieldmap_segments=None,
+        n_shots=1,
+        acorr_fieldmap_segments=None,
+        calc_acorr_fieldmap_basis=False,
         xp=None,
     ):
         """ Initialize the fieldmap approximation basis and coefficients
@@ -913,11 +925,11 @@ class MRI_Operator(LinearOperatorMulti):
 
         Notes
         -----
-        aL, calc_acorr_fmap_basis only required for Toeplitz case
+        acorr_fieldmap_segments, calc_acorr_fieldmap_basis only required for Toeplitz case
         """
         if xp is None:
             xp = self.xp
-        if len(ti) != self.kspace.shape[0] // Nidentical_reps:
+        if len(ti) != self.kspace.shape[0] // n_shots:
             raise ValueError("ti size mismatch in new_zmap()")
 
         # make sure precision of dtypes matches the NUFFT operator
@@ -950,11 +962,13 @@ class MRI_Operator(LinearOperatorMulti):
             #    raise ValueError("expected a 1D zmap (masked/raveled)")
             self.zmap = zmap.ravel(order=self.order)
 
-        if L is None:
+        if fieldmap_segments is None:
             # auto-determine an appropriate number of segments
-            L = determine_fieldmap_segments(ti, zmap, Lstart=3, xp=xp)
+            fieldmap_segments = determine_fieldmap_segments(
+                ti, zmap, fieldmap_segments_start=3, xp=xp
+            )
 
-        # trick to handle 'exact' case (for which L is irrelevant)
+        # trick to handle 'exact' case (for which fieldmap_segments is irrelevant)
         if self.exact:
             ndim = len(self.Nd)
             # trick: if already a zmap in u,v, then replace it
@@ -967,14 +981,13 @@ class MRI_Operator(LinearOperatorMulti):
             self.v = xp.vstack((self.v[0:ndim, :], self.ti[xp.newaxis, :]))
             return
 
-        if not L:  # 4th argument is optional, so defaults here:
-            if self.L:
-                L = self.L
+        if not fieldmap_segments:  # 4th argument is optional, so defaults here:
+            if self.fieldmap_segments:
+                fieldmap_segments = self.fieldmap_segments
             else:
-                raise ValueError("user must provide self.L or L input")
-
-        # TODO:  put the Ladjust loop here to auto-adjust L.  see my Matlab
-        # version
+                raise ValueError(
+                    "user must provide self.fieldmap_segments or fieldmap_segments input"
+                )
 
         # initialize exponential approximations for field-corrected
         # reconstruction
@@ -990,7 +1003,7 @@ class MRI_Operator(LinearOperatorMulti):
         self.fmap_basis, C, hk, zk = mri_exp_approx(
             ti=self.ti,
             zmap=self.zmap,
-            segments=L,
+            segments=fieldmap_segments,
             approx_type=self.exp_approx_type,
             **self.exp_approx_args,
         )
@@ -1002,69 +1015,81 @@ class MRI_Operator(LinearOperatorMulti):
         if C.dtype != self.Gnufft._cplx_dtype:
             C = C.astype(self.Gnufft._cplx_dtype)
 
-        if Nidentical_reps > 1:
+        if n_shots > 1:
             """when there are multiple shots with same time vector can just
             duplicate here."""
             # Note: on CPU this is explicitly tiled
             #       on GPU to save memory only 1 repetition will be stored
-            self.fmap_basis = xp.tile(self.fmap_basis, [Nidentical_reps, 1])
+            self.fmap_basis = xp.tile(self.fmap_basis, [n_shots, 1])
 
         if xp.any(xp.isnan(self.fmap_basis)):
             raise ValueError("bug: nan values in fmap_basis")
 
         self.fmap_coeffs = C.T
 
-        if not aL:  # 5th argument is optional, so defaults here:
-            if self.aL:
-                aL = self.aL
-            # trick: use "found" L because aL >= L generally
-            elif isinstance(L, (list, xp.ndarray, tuple)):
-                aL = [self.fmap_basis.shape[1], L[1]]  # [L, rmsmax]
+        if (
+            not acorr_fieldmap_segments
+        ):  # 5th argument is optional, so defaults here:
+            if self.acorr_fieldmap_segments:
+                acorr_fieldmap_segments = self.acorr_fieldmap_segments
+            # trick: use "found" L because acorr_fieldmap_segments >= fieldmap_segments generally
+            elif isinstance(fieldmap_segments, (list, xp.ndarray, tuple)):
+                acorr_fieldmap_segments = [
+                    self.fmap_basis.shape[1],
+                    fieldmap_segments[1],
+                ]  # [fieldmap_segments, rmsmax]
             else:
-                aL = self.fmap_basis.shape[1]
+                acorr_fieldmap_segments = self.fmap_basis.shape[1]
 
         # store size (seems redundant, but OK)
-        self.L = self.fmap_basis.shape[1]
-        if isinstance(L, (list, xp.ndarray, tuple)):
-            self.rmsmax = L[1]
-            print("L=%d found" % self.L)
+        self.fieldmap_segments = self.fmap_basis.shape[1]
+        if isinstance(fieldmap_segments, (list, xp.ndarray, tuple)):
+            self.rmsmax = fieldmap_segments[1]
+            print("fieldmap_segments=%d found" % self.fieldmap_segments)
 
-        if calc_acorr_fmap_basis:
+        if calc_acorr_fieldmap_basis:
             # TODO: untested
             # generate one with auto-correlation histogram too.
             # only if no relaxation map!
             if not xp.any(self.zmap.real):
-                self.acorr_fmap_basis, C, hk, zk = mri_exp_approx(
+                self.acorr_fieldmap_basis, C, hk, zk = mri_exp_approx(
                     ti=self.ti,
                     zmap=self.zmap,
-                    segments=L,
+                    segments=fieldmap_segments,
                     approx_type=self.exp_approx_type,
                     acorr=True,
                     **self.exp_approx_args,
                 )
 
                 # trick: for symmetric histogram, it should be real!
-                if xp.any(self.acorr_fmap_basis.imag > 1e-6):
+                if xp.any(self.acorr_fieldmap_basis.imag > 1e-6):
                     warnings.warn(
-                        "imaginary component to self.acorr_fmap_basis in "
+                        "imaginary component to self.acorr_fieldmap_basis in "
                         "MRI_Operator"
                     )
-                self.acorr_fmap_basis = self.acorr_fmap_basis.real
+                self.acorr_fieldmap_basis = self.acorr_fieldmap_basis.real
 
                 # make sure precision of dtypes matches the NUFFT operator
-                if self.acorr_fmap_basis.dtype != self.Gnufft._real_dtype:
-                    self.acorr_fmap_basis = self.acorr_fmap_basis.astype(
+                if self.acorr_fieldmap_basis.dtype != self.Gnufft._real_dtype:
+                    self.acorr_fieldmap_basis = self.acorr_fieldmap_basis.astype(
                         self.Gnufft._real_dtype
                     )
 
                 if C.dtype != self.Gnufft._cplx_dtype:
                     C = C.astype(self.Gnufft._cplx_dtype)
 
-                self.acorr_fmap_coeffs = C.T
+                self.acorr_fieldmap_coeffs = C.T
 
-                self.aL = self.acorr_fmap_basis.shape[1]
-                if isinstance(aL, (list, xp.ndarray, tuple)):
-                    print("aL=%d found" % self.aL)
+                self.acorr_fieldmap_segments = self.acorr_fieldmap_basis.shape[
+                    1
+                ]
+                if isinstance(
+                    acorr_fieldmap_segments, (list, xp.ndarray, tuple)
+                ):
+                    print(
+                        "acorr_fieldmap_segments=%d found"
+                        % self.acorr_fieldmap_segments
+                    )
             else:
                 raise ValueError("zmap with real component unsupported")
 
@@ -1178,7 +1203,7 @@ class MRI_Operator(LinearOperatorMulti):
 
                 if self.coil_sensitivities is None:
                     # fieldmap, but no coil sensitivities
-                    for ll in range(self.L):
+                    for ll in range(self.fieldmap_segments):
                         # fmap_coeffs will be broadcast when x.shape[1]>1
                         # fmap_basis will be broadcast when x.shape[1]>1
                         tmp = self.fmap_coeffs[:, ll][:, xp.newaxis] * x
@@ -1198,7 +1223,7 @@ class MRI_Operator(LinearOperatorMulti):
                             dtype=x.dtype,
                             order=self.order,
                         )
-                        for ll in range(self.L):
+                        for ll in range(self.fieldmap_segments):
                             cx = self.fmap_coeffs[:, ll : ll + 1] * x
                             for cc in range(self.Ncoils):
                                 # fmap_coeffs will be broadcast when x.shape[1]>1
@@ -1221,7 +1246,7 @@ class MRI_Operator(LinearOperatorMulti):
                         else:
                             y_shape = (self.shape[0], nreps)
                         y = xp.empty(y_shape, dtype=x.dtype, order=self.order)
-                        for ll in range(self.L):
+                        for ll in range(self.fieldmap_segments):
                             cx = self.fmap_coeffs[:, ll : ll + 1] * x
                             for repIDX in range(nreps):
                                 rep_slice = slice(
@@ -1424,7 +1449,7 @@ class MRI_Operator(LinearOperatorMulti):
                     # (not xp.any(self.coil_sensitivities))):
                     # fieldmap, but no coil sensitivities
                     y = y.reshape((nt, nreps), order=self.order)
-                    for ll in range(0, self.L):
+                    for ll in range(0, self.fieldmap_segments):
                         # tmp = self.fmap_basis[:, ll][:, xp.newaxis] * y
                         tmp = self.fmap_basis[:, ll][:, xp.newaxis] * y
                         tmp = self.Gnufft.T * tmp
@@ -1453,7 +1478,7 @@ class MRI_Operator(LinearOperatorMulti):
                         y = y.reshape((nt, 1), order=self.order)
 
                     xtmp = 0
-                    for ll in range(self.L):
+                    for ll in range(self.fieldmap_segments):
                         tmp = self.fmap_basis[:, ll : ll + 1] * y
                         tmp = self.Gnufft.T * tmp
                         if tmp.ndim == 1:
