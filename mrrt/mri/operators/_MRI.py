@@ -82,7 +82,7 @@ def determine_fieldmap_segments(
     mask=None,
     approx_type="default",
     fieldmap_segments_start=5,
-    err_thresh=1e-6,
+    err_thresh=1e-3,
     exp_approx_args={},
     xp=np,
 ):
@@ -1215,7 +1215,7 @@ class MRI_Operator(LinearOperatorMulti):
                             y += tmp
                 # not None and xp.any(self.coil_sensitivities):
                 else:
-                    loop_over_coils = False
+                    loop_over_coils = True
                     if loop_over_coils:
                         # multiple coils and fieldmap
                         y = xp.empty(
@@ -1257,7 +1257,10 @@ class MRI_Operator(LinearOperatorMulti):
                                     self.coil_sensitivities
                                     * cx[:, repIDX : repIDX + 1]
                                 )
-                                y[:, rep_slice] = self.Gnufft * tmp
+                                tmp = self.Gnufft * tmp
+                                y[:, rep_slice] = (
+                                    self.fmap_basis[:, ll : ll + 1] * tmp
+                                )
                         y = y.reshape((self.shape[0], nreps), order=self.order)
         finally:
             # place the scale factors back into the NUFFT object
@@ -1450,11 +1453,11 @@ class MRI_Operator(LinearOperatorMulti):
                     y = y.reshape((nt, nreps), order=self.order)
                     for ll in range(0, self.fieldmap_segments):
                         # tmp = self.fmap_basis[:, ll][:, xp.newaxis] * y
-                        tmp = self.fmap_basis[:, ll][:, xp.newaxis] * y
+                        tmp = xp.conj(self.fmap_basis[:, ll : ll + 1]) * y
                         tmp = self.Gnufft.T * tmp
                         if tmp.ndim == 1:
                             tmp = tmp[:, np.newaxis]
-                        tmp *= self.fmap_coeffs[:, ll][:, xp.newaxis]
+                        tmp *= xp.conj(self.fmap_coeffs[:, ll : ll + 1])
                         if ll == 0:
                             x = tmp
                         else:
@@ -1478,7 +1481,7 @@ class MRI_Operator(LinearOperatorMulti):
 
                     xtmp = 0
                     for ll in range(self.fieldmap_segments):
-                        tmp = self.fmap_basis[:, ll : ll + 1] * y
+                        tmp = xp.conj(self.fmap_basis[:, ll : ll + 1]) * y
                         tmp = self.Gnufft.T * tmp
                         if tmp.ndim == 1:
                             tmp = tmp[:, np.newaxis]
