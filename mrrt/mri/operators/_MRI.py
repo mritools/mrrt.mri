@@ -82,7 +82,7 @@ def determine_fieldmap_segments(
     mask=None,
     approx_type="default",
     Lstart=5,
-    err_thresh=0.01,
+    err_thresh=1e-6,
     exp_approx_args={},
     xp=np,
 ):
@@ -316,6 +316,7 @@ class MRI_Operator(LinearOperatorMulti):
 
         if order != "F":
             raise ValueError("MRI_Operator only supports order='F'.")
+        self.order = order
 
         # SENSE-stuff
         self.coil_sensitivities = coil_sensitivities
@@ -571,17 +572,21 @@ class MRI_Operator(LinearOperatorMulti):
         # trajectory is multiple shots over identical time interval
         xp = self.xp
         self.zmap = kwargs.pop("zmap", None)
-        self.ti = kwargs.pop("ti", [])
+        self.ti = kwargs.pop("ti", None)
         if self.ti is not [] and self.ti is not None:
             self.ti = xp.asarray(self.ti)
-        self.L = kwargs.pop("L", [])
+        self.L = kwargs.pop("L", None)
+        if self.L is None and self.ti is not None and self.zmap is not None:
+            self.L = determine_fieldmap_segments(
+                self.ti, self.zmap, Lstart=3, xp=xp
+            )
         # aL is for autocorrelation zmap. default is kwargs['L']
         self.aL = kwargs.pop("aL", self.L)
         self.Nidentical_reps = kwargs.pop("Nidentical_reps", 1)
 
         # add zmap if available now.
         if self.zmap is not None:
-            if (not self.exact) and (not any(self.L) or not any(self.ti)):
+            if (not self.exact) and (self.L is None or self.ti is None):
                 raise ValueError(
                     "field-corrected recon:  zmap specified without ti and L"
                 )
