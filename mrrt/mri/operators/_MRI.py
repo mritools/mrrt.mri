@@ -1404,10 +1404,9 @@ class MRI_Operator(LinearOperatorMulti):
 
         y = complexify(y)  # force at least 64-bit complex
 
-        sn_outside_loop = False
+        sn_outside_loop = True
         if sn_outside_loop:
             sn_tmp = self.Gnufft.sn.copy()
-            # TODO: make sure this is valid for the Gnufft object
             self.Gnufft.sn = None
         try:
             if self.zmap is None:  # or (not xp.any(self.zmap)):
