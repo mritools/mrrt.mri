@@ -13,7 +13,7 @@ from mrrt.nufft._nufft import nufft_forward, nufft_adj
 
 
 def mri_dcf_pipe(nufft_op, niter=8, thresh=0.02, verbose=False):
-    from mrrt.operators import MRI_Operator, NUFFT_Operator
+    from mrrt.mri.operators import MRI_Operator, NUFFT_Operator
 
     if isinstance(nufft_op, MRI_Operator):
         nufft_op = nufft_op.Gnufft
