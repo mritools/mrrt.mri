@@ -215,9 +215,7 @@ def mri_exp_approx(
             if verbose:
                 plt.figure(),
                 bar_width = xp.mean(xp.diff(zc) / (2 * xp.pi)) * 0.66
-                plt.bar(
-                    xp.asarray(zk.imag) / (2 * xp.pi), hk, width=bar_width,
-                )
+                plt.bar(xp.asarray(zk.imag) / (2 * xp.pi), hk, width=bar_width)
 
             if autocorr:
                 hk = xp.correlate(hk, hk, mode="full")
@@ -226,7 +224,7 @@ def mri_exp_approx(
                     plt.figure(),
                     bar_width = xp.mean(xp.diff(zk.imag) / (2 * xp.pi)) * 0.8
                     plt.bar(
-                        xp.asarray(zk.imag) / (2 * xp.pi), hk, width=bar_width,
+                        xp.asarray(zk.imag) / (2 * xp.pi), hk, width=bar_width
                     )
         else:
             hk, zc = hist_equal(

@@ -16,7 +16,7 @@ __all__ = ["test_mri_exp_mult"]
 
 
 @pytest.mark.parametrize(
-    "xp, dtype", itertools.product(all_xp, [np.float32, np.float64]),
+    "xp, dtype", itertools.product(all_xp, [np.float32, np.float64])
 )
 def test_mri_exp_mult(xp, dtype):
     """

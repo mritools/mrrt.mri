@@ -120,11 +120,21 @@ class NUFFT_Operator(NufftBase, LinearOperatorMulti):
         **kwargs,
     ):
 
+        if loc_in == "cpu":
+            xp = np
+        else:
+            import cupy
+
+            xp = cupy
+
         # masked boolean if mask is True everywhere or no mask is provided
+        if mask is not None:
+            mask = xp.asarray(mask, dtype=bool)
+
         self.masked = (
             (mask is not None)
             and (not isinstance(mask, tuple))
-            and (mask.size != mask.sum())
+            and (mask.size != xp.count_nonzero(mask))
         )
         if isinstance(mask, tuple):
             self.__mask = None
@@ -134,7 +144,7 @@ class NUFFT_Operator(NufftBase, LinearOperatorMulti):
 
         nargout = omega.shape[0]
         if self.masked:
-            nargin = self.mask.sum()
+            nargin = xp.count_nonzero(mask)
         else:
             nargin = prod(self.__Nd)
 

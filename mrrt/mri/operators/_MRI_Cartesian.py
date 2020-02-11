@@ -248,7 +248,7 @@ class MRI_Cartesian(LinearOperatorMulti):
                 raise ValueError("im_mask shape mismatch")
             if order != "F":
                 raise ValueError("only order='F' supported for im_mask case")
-            nargin = im_mask.sum()
+            nargin = xp.count_nonzero(im_mask)
             self.im_mask = im_mask
         else:
             nargin = prod(arr_shape)
@@ -257,7 +257,7 @@ class MRI_Cartesian(LinearOperatorMulti):
 
         # nargout = # of k-space samples
         if sample_mask is not None:
-            nargout = sample_mask.sum() * self.Ncoils
+            nargout = xp.count_nonzero(sample_mask) * self.Ncoils
         else:
             nargout = nargin // self.Nmaps * self.Ncoils
         nargout = int(nargout)
@@ -539,7 +539,7 @@ class MRI_Cartesian(LinearOperatorMulti):
         if self.sample_mask is not None:
             if y.ndim == 1 and self.ndim > 1:
                 y = y[:, np.newaxis]
-            nmask = self.sample_mask.sum()
+            nmask = xp.count_nonzero(self.sample_mask)
             if self.on_gpu:
                 nmask = nmask.get()
             if y.shape[0] != nmask:
@@ -578,7 +578,7 @@ class MRI_Cartesian(LinearOperatorMulti):
                 )  # or shape_out?
                 x_shape = self.shape_inM + (nreps,)
 
-            x = xp.zeros(x_shape, dtype=xp.result_type(y, xp.complex64),)
+            x = xp.zeros(x_shape, dtype=xp.result_type(y, xp.complex64))
             for i_map in range(self.Nmaps):
                 if self.order == "C":
                     for rep in range(nreps):
@@ -610,7 +610,7 @@ class MRI_Cartesian(LinearOperatorMulti):
         else:
             y_shape = self.shape_in1 + (self.Ncoils,)
         y = xp.zeros(
-            y_shape, dtype=xp.result_type(x, xp.complex64), order=self.order,
+            y_shape, dtype=xp.result_type(x, xp.complex64), order=self.order
         )
         use_smaps = self.coil_sensitivities is not None
         if self.loop_over_coils:

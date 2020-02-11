@@ -28,11 +28,7 @@ from mrrt.utils import (
     profile,
 )
 
-from mrrt.operators import (
-    BlockDiagLinOp,
-    DiagonalOperator,
-    LinearOperatorMulti,
-)
+from mrrt.operators import BlockDiagLinOp, DiagonalOperator, LinearOperatorMulti
 from mrrt.mri.operators._pixel_basis import PixelBasis
 
 # from mrrt.nufft import compute_Q
@@ -261,10 +257,11 @@ class MRI_Operator(LinearOperatorMulti):
             self.mask = xp.asarray(mask, dtype=bool)
             if self.mask.shape != shape:
                 raise ValueError("mask.shape must match the specified shape")
+            nmask = xp.count_nonzero(self.mask)
             if self.xp is np:
-                self.nmask = self.mask.sum()
+                self.nmask = nmask
             else:
-                self.nmask = self.mask.sum().get()
+                self.nmask = nmask.get()
 
         if verbose:
             print("kwargs keys = {}".format(kwargs.keys()))
@@ -537,7 +534,7 @@ class MRI_Operator(LinearOperatorMulti):
                     xp.arange(0, N[1]) - self.n_shift[1],
                     indexing="ij",
                 )
-                self.u = xp.zeros((mask.sum(), 2))
+                self.u = xp.zeros((xp.count_nonzero(mask), 2))
                 # transposes to get Fortran style ordering to match Matlab
                 self.u[:, 0] = n1.T[mask.T]
                 self.u[:, 1] = n2.T[mask.T]
@@ -549,7 +546,7 @@ class MRI_Operator(LinearOperatorMulti):
                     xp.arange(0, N[2]) - self.n_shift[2],
                     indexing="ij",
                 )
-                self.u = xp.zeros((mask.sum(), 2))
+                self.u = xp.zeros((xp.count_nonzero(mask), 2))
                 # transposes to get Fortran style ordering to match Matlab
                 self.u[:, 0] = n1.T[mask.T]
                 self.u[:, 1] = n2.T[mask.T]
@@ -953,7 +950,10 @@ class MRI_Operator(LinearOperatorMulti):
             #     self.zmap = masker(zmap, self.mask).ravel(order=self.order)
             if zmap.shape == self.mask.shape:
                 self.zmap = masker(zmap, self.mask, xp=self.xp)
-            elif self.mask.sum() == zmap.shape[0] and zmap.ndim == 1:
+            elif (
+                self.xp.count_nonzero(self.mask) == zmap.shape[0]
+                and zmap.ndim == 1
+            ):
                 self.zmap = zmap
             else:
                 raise ValueError("zmap size mismatch in new_zmap()")

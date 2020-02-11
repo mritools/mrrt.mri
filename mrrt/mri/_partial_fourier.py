@@ -68,7 +68,7 @@ def mri_partial_fourier_nd(
             "This function assumes all k-space dimensions have even length."
         )
 
-    if partial_kspace.size != pf_mask.sum():
+    if partial_kspace.size != xp.count_nonzero(pf_mask):
         raise ValueError(
             "partial kspace should have total size equal to the number of "
             "non-zeros in pf_mask"

@@ -334,7 +334,7 @@ def test_mri_2d_nocoils_nofieldmap(
 # @dec.slow
 @pytest.mark.parametrize(
     "recon_case, precision, phasing",
-    product(all_cases, ["single", "double"], ["complex", "real"],),
+    product(all_cases, ["single", "double"], ["complex", "real"]),
 )
 @pytest.mark.filterwarnings("ignore:the matrix subclass is not")
 def test_mri_2d_nocoils_nofieldmap_kernels(
