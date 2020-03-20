@@ -16,7 +16,7 @@ imaging (MRI) reconstruction.
 Installation
 ------------
 
-pip install mri
+pip install mrrt.mri
 
 **Requires:**
 
