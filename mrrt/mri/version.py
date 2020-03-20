@@ -3,7 +3,7 @@ from os.path import join as pjoin
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 0
 _version_minor = 3
-_version_micro = 3  # use "" for first of series, number for 1 and above
+_version_micro = 4  # use "" for first of series, number for 1 and above
 _version_extra = ""  # use "dev0" for developemnt, "" for full release
 
 # Construct full version string from these.
